@@ -171,6 +171,8 @@
     .app-topbar {
         width: 100%;
         height: 64px;
+
+        background: #542353;
     }
     .app-topbar button {
         height: 100%;
