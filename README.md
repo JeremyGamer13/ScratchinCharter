@@ -1,5 +1,8 @@
 # Scratchin' Charter
-Text here
+A chart editor for Custom Chart Support V2, a (work-in-progress) mod for Scratchin' Melodii by LJ LephemStar.
+
+# Notice
+This repository is a work-in-progress. It's also likely that work on the mod in general will be slow.
 
 # License
 My chart editor code and UI are under the MIT License. See [LICENSE](/LICENSE) for more information.
