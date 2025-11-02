@@ -95,7 +95,10 @@
         });
 
         window.addEventListener("keydown", (event) => {
-            if (event.key === " ") waveSurfer.playPause();
+            if (event.key === " ") {
+                event.preventDefault();
+                waveSurfer.playPause();
+            }
         });
     }
 
