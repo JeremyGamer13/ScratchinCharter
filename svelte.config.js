@@ -5,7 +5,10 @@ import adapter from '@sveltejs/adapter-static';
 const config = {
 	kit: { adapter: adapter() },
 	preprocess: [mdsvex()],
-	extensions: ['.svelte', '.svx']
+	extensions: ['.svelte', '.svx'],
+    compilerOptions: {
+        runes: true,
+    }
 };
 
 export default config;
