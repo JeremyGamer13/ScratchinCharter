@@ -159,9 +159,41 @@
     </div>
 {/if}
 <div class="app-topbar">
+    <img width="32" height="32" src="/favicon.svg" alt="Favicon" />
+
     <button disabled={appLoading} onclick={chartImport}>Import Chart</button>
     <button disabled={appLoading} onclick={songImport}>Import Song</button>
     <button disabled={appLoading} onclick={chartExport}>Export</button>
+</div>
+<div class="app-optionsbar">
+    <div class="app-optionsbar-meta">
+        <label>
+            <span>Name:</span>
+            <input type="text" value="" placeholder="File name">
+        </label>
+        <label>
+            <span>Path:</span>
+            <input type="text" value="" placeholder="File path to audio file">
+        </label>
+        <label>
+            <span style="transform: scaleX(0.75) translateX(-12px);">SampleRate:</span>
+            <input type="number" step="0.01" value="" placeholder="Sample rate">
+        </label>
+    </div>
+    <div class="app-optionsbar-timing">
+        <label>
+            <span>BPM:</span>
+            <input type="number" step="1" value={120} placeholder="BPM">
+        </label>
+        <label>
+            <span style="transform: scaleX(0.85) translateX(-6px);">IconSpeed:</span>
+            <input type="number" step="0.01" value={4.9} placeholder="Icon Speed">
+        </label>
+        <label data-left="true">
+            <input type="checkbox" checked={true}>
+            <span>Link BPM & IconSpeed?</span>
+        </label>
+    </div>
 </div>
 <div class="app-mainarea">
     <div id="waveSurfer"></div>
@@ -170,17 +202,106 @@
 <style>
     .app-topbar {
         width: 100%;
-        height: 64px;
+        height: 32px;
 
         background: #542353;
     }
+    .app-topbar {
+        display: flex;
+        flex-direction: row;
+    }
+    .app-topbar button,
+    .app-topbar input,
+    .app-optionsbar button,
+    .app-optionsbar input {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        height: 100%;
+    }
+    .app-topbar button,
+    .app-topbar label,
+    .app-optionsbar button,
+    .app-optionsbar label {
+        color: white;
+        font-family: Helvetica, Arial, sans-serif;
+    }
     .app-topbar button {
+        margin: 0 4px;
+        padding: 0 8px;
+
+        background: transparent;
+        font-weight: bold;
+    }
+    .app-topbar button:hover {
+        background: rgba(255, 255, 255, 0.1);
+
+        cursor: pointer;
+    }
+
+    .app-optionsbar {
+        width: 100%;
+        height: 64px;
+        
+        display: flex;
+        flex-direction: row;
+
+        background: #3d1b3d;
+    }
+    .app-optionsbar-meta {
+        width: 200px;
+        height: 100%;
+        
+        display: flex;
+        flex-direction: column;
+    }
+    .app-optionsbar-timing {
+        width: 210px;
+        height: 100%;
+
+        display: flex;
+        flex-direction: column;
+    }
+    .app-optionsbar-meta label,
+    .app-optionsbar-timing label {
+        width: 100%;
+        height: calc(100% / 3);
+        
+        display: flex;
+        flex-direction: row;
+    }
+    .app-optionsbar-meta label:nth-child(2),
+    .app-optionsbar-timing label:nth-child(2) {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    .app-optionsbar-meta label span,
+    .app-optionsbar-timing label span {
+        display: block;
+
+        width: 72px;
+    }
+    .app-optionsbar-meta label[data-left="true"] span,
+    .app-optionsbar-timing label[data-left="true"] span {
+        width: calc(100% - 32px);
+    }
+    .app-optionsbar-meta label input[type="text"],
+    .app-optionsbar-meta label input[type="number"],
+    .app-optionsbar-timing label input[type="text"],
+    .app-optionsbar-timing label input[type="number"] {
+        width: calc(100% - 72px);
+        height: 100%;
+    }
+    .app-optionsbar-meta label input[type="checkbox"],
+    .app-optionsbar-meta label input[type="radio"],
+    .app-optionsbar-timing label input[type="checkbox"],
+    .app-optionsbar-timing label input[type="radio"] {
+        width: 32px;
         height: 100%;
     }
 
     .app-mainarea {
         width: 100%;
-        height: calc(100% - 64px);
+        height: calc(100% - 32px - 64px);
     }
     #waveSurfer {
         height: 100%;

@@ -17,8 +17,11 @@
         top: 0;
         margin: 0;
         padding: 0;
+        
+        font-family: Helvetica, Arial, sans-serif;
 
         width: 100%;
         height: 100%;
+        min-width: 750px;
     }
 </style>
