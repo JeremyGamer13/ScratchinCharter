@@ -78,6 +78,20 @@
         const fileData = await fileHandle.getFile();
         await songImportFromBlob(fileData);
     };
+    const songExport = async () => {
+        const fileHandle = await window.showSaveFilePicker({
+            id: "scratchin-charting-chartexport",
+            suggestedName: "sumidk.json",
+            types: [{
+                description: "Melodii Chart",
+                accept: {"application/json": [".json"]}
+            }]
+        });
+        const writable = await fileHandle.createWritable();
+        // TODO: actually export charts
+        await writable.write("Wouldnt it be nice to have a chart here?");
+        await writable.close();
+    };
 
     if (browser) {
         let mouseDown = false;
@@ -110,7 +124,7 @@
 
 <div class="app-topbar">
     <button onclick={songImport}>Import</button>
-    <button>Export</button>
+    <button onclick={songExport}>Export</button>
 </div>
 <div class="app-mainarea">
     <div id="waveSurfer"></div>
