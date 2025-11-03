@@ -3,15 +3,19 @@
     import { page } from "$app/state";
     import { browser } from "$app/environment";
     
+    import { AutoAdjust } from '@smui/top-app-bar';
+    import Drawer, {
+        AppContent,
+        Content,
+        Header,
+        Title,
+        Subtitle,
+    } from '@smui/drawer';
+    import Textfield from '@smui/textfield';
+    import Icon from '@smui/textfield/icon';
+    import HelperText from '@smui/textfield/helper-text';
     import WaveSurfer from 'wavesurfer.js';
     import localforage from "localforage";
-    import TopAppBar, {
-        Row,
-        Section,
-        Title,
-        AutoAdjust,
-    } from '@smui/top-app-bar';
-    import IconButton from '@smui/icon-button';
     
     import Application from "$lib/resources/app.svelte";
     import Settings from "$lib/stores/settings";
@@ -21,7 +25,7 @@
     import MelodiiChart from "$lib/resources/chart";
 
     // Components
-    import MenuFile from "$lib/components/TopBar/MenuFile.svelte";
+    import TopBar from "$lib/components/TopBar/TopBar.svelte";
     import WaveSurferComponent from "$lib/components/WaveSurfer.svelte";
     
     let appTopBar = $state(null);
@@ -35,14 +39,14 @@
         }
     };
 
-    const appLoadSettings = async () => {
+    const appReadSettings = async () => {
         surferSetAllVolume($Settings.volume ?? 0.5);
     };
-    const appLoadSaveState = async () => {
+    const appReadSaveState = async () => {
         const chart = $SaveState.chart || MelodiiChart.defaultChart();
         await Application.importChartFromObject(chart);
     };
-    const appLoadSaveStateLarge = async () => {
+    const appReadSaveStateLarge = async () => {
         const song = $SaveStateLarge.song;
         await Application.importSongFromBlob(new Blob([song]));
     };
@@ -66,9 +70,9 @@
         Application.state.timingPreview = waveSurfer;
         componentsHasLoaded.app = true;
         
-        await appLoadSettings();
-        await appLoadSaveStateLarge();
-        await appLoadSaveState();
+        await appReadSettings();
+        await appReadSaveStateLarge();
+        await appReadSaveState();
         Application.state.appLoaded = true;
     };
     onMount(async () => {
@@ -89,64 +93,97 @@
     </div>
 {/if}
 
-<TopAppBar bind:this={appTopBar} variant="standard" dense>
-    <Row>
-        <Section>
-            <MenuFile {appTopBar}></MenuFile>
-        </Section>
-    </Row>
-</TopAppBar>
-<AutoAdjust topAppBar={appTopBar}>
-<!-- <div class="app-topbar">
-    <img width="32" height="32" src="/favicon.svg" alt="Favicon" />
-
-    <button disabled={appLoading} onclick={chartImport}>Import Chart</button>
-    <button disabled={appLoading} onclick={songImport}>Import Song</button>
-    <button disabled={appLoading} onclick={chartExport}>Export</button>
-</div> -->
-<!-- <div class="app-optionsbar">
+<TopBar />
+<AutoAdjust topAppBar={Application.state.appTopBar}>
+    <div class="app-container">
+        <Drawer class="app-properties" variant={Application.state.appLoaded ? "dismissible" : null} dir="rtl" bind:open={$Settings.propertiesOpen}>
+            <Header dir="ltr">
+                <Title>Properties</Title>
+                <Subtitle>Project</Subtitle>
+            </Header>
+            <Content dir="ltr">
+                {#if Application.state.appLoaded}
+                    <Textfield style="width:100%" variant="filled" bind:value={$SaveState.chart.song} label="Audio file">{#snippet helper()}
+                        <HelperText>Path to the audio file in your Unity project.</HelperText>
+                    {/snippet}</Textfield>
+                    <Textfield style="width:100%" variant="filled" type="number" bind:value={$SaveState.chart.sampleRate} label="Sample rate">{#snippet helper()}
+                        <HelperText>Sample rate of your song file.</HelperText>
+                    {/snippet}</Textfield>
+                {/if}
+            </Content>
+        </Drawer>
+        
+        <AppContent class="app-content">
+            <div class="app-timingpreview">
+                <WaveSurferComponent
+                    id="wavesurfer-main"
+                    onload={(instance) => {
+                        waveSurfer = instance.waveSurfer;
+                        componentsHasLoaded.waveSurfer = true;
+                        componentLoaded();
+                    }}
+                />
+            </div>
+        </AppContent>
+    </div>
+    <!-- <div class="app-optionsbar">
     <div class="app-optionsbar-meta">
-        <label>
-            <span>Name:</span>
-            <input type="text" value="" placeholder="File name">
-        </label>
-        <label>
-            <span>Path:</span>
-            <input type="text" value="" placeholder="File path to audio file">
-        </label>
-        <label>
-            <span style="transform: scaleX(0.75) translateX(-12px);">SampleRate:</span>
-            <input type="number" step="0.01" value="" placeholder="Sample rate">
-        </label>
+    <label>
+    <span>Name:</span>
+    <input type="text" value="" placeholder="File name">
+    </label>
+    <label>
+    <span>Path:</span>
+    <input type="text" value="" placeholder="File path to audio file">
+    </label>
+    <label>
+    <span style="transform: scaleX(0.75) translateX(-12px);">SampleRate:</span>
+    <input type="number" step="0.01" value="" placeholder="Sample rate">
+    </label>
     </div>
     <div class="app-optionsbar-timing">
-        <label>
-            <span>BPM:</span>
-            <input type="number" step="1" value={120} placeholder="BPM">
-        </label>
-        <label>
-            <span style="transform: scaleX(0.85) translateX(-6px);">IconSpeed:</span>
-            <input type="number" step="0.01" value={4.9} placeholder="Icon Speed">
-        </label>
-        <label data-left="true">
-            <input type="checkbox" checked={true}>
-            <span>Link BPM & IconSpeed?</span>
-        </label>
+    <label>
+    <span>BPM:</span>
+    <input type="number" step="1" value={120} placeholder="BPM">
+    </label>
+    <label>
+    <span style="transform: scaleX(0.85) translateX(-6px);">IconSpeed:</span>
+    <input type="number" step="0.01" value={4.9} placeholder="Icon Speed">
+    </label>
+    <label data-left="true">
+    <input type="checkbox" checked={true}>
+    <span>Link BPM & IconSpeed?</span>
+    </label>
     </div>
-</div> -->
-<div class="app-mainarea">
-    <WaveSurferComponent
-        id="wavesurfer-main"
-        onload={(instance) => {
-            waveSurfer = instance.waveSurfer;
-            componentsHasLoaded.waveSurfer = true;
-            componentLoaded();
-        }}
-    />
-</div>
+    </div> -->
 </AutoAdjust>
 
 <style>
+    /* HACK: just providing the exact class name & padding size */
+    :global(main .mdc-top-app-bar--dense-fixed-adjust)  {
+        height: calc(100% - 48px);
+    }
+
+    .app-container {
+        width: 100%;
+        height: 100%;
+    }
+    :global(main .app-properties) {
+        width: 25%;
+        height: calc(100% - 48px);
+        
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+    }
+    :global(main .app-container .mdc-drawer.mdc-drawer--open:not(.mdc-drawer--closing) + .app-content) {
+        margin-left: 0 !important;
+        width: calc(100% - 25%);
+    }
+    .app-timingpreview {
+        width: 100%;
+        height: 100%;
+    }
+
     .app-loading {
         position: absolute;
         width: 100%;

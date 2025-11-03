@@ -5,6 +5,7 @@ import localforage from 'localforage';
 const defaultSettings = {
     loaded: false,
     volume: 0.5,
+    propertiesOpen: true,
 };
 
 const settings = writable(defaultSettings);

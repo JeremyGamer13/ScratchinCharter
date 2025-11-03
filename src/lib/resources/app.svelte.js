@@ -9,6 +9,7 @@ import updateStore from './update-store';
 
 const state = $state({
     appLoaded: false,
+    appTopBar: null,
 
     /** @type {import("wavesurfer.js").default} */
     timingPreview: null,
@@ -29,7 +30,7 @@ class Application {
         updateStore(SaveStateLarge, (state) => { state.song = arrayBuffer });
     };
     static async importChartFromObject(object) {
-
+        updateStore(SaveState, (state) => { state.chart = object; });
     };
     static async importChartFromString(jsonStr) {
         const obj = JSON.parse(jsonStr);

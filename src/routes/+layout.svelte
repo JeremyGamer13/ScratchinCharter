@@ -15,13 +15,13 @@
         position: absolute;
         left: 0;
         top: 0;
+        width: 100%;
+        height: 100%;
+        min-width: 750px;
         margin: 0;
         padding: 0;
         
         font-family: Helvetica, Arial, sans-serif;
-
-        width: 100%;
-        height: 100%;
-        min-width: 750px;
+        overflow: hidden;
     }
 </style>
