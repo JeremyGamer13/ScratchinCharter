@@ -3,10 +3,17 @@
     import { page } from "$app/state";
     import { browser } from "$app/environment";
     
+    import * as TopAppBar from '@smui/top-app-bar';
     import WaveSurfer from 'wavesurfer.js';
     import localforage from "localforage";
     
+    import WaveSurferState from "$lib/state/wavesurfer.svelte.js";
+
+    // Components
+    import WaveSurferComponent from "$lib/components/WaveSurfer.svelte";
+    
     let appLoading = $state(true);
+    let appTopBar = $state(null);
     let appSaveStateLarge = {
         song: null
     };
@@ -16,21 +23,11 @@
     
     /** @type {WaveSurfer} */
     let waveSurfer;
-    if (browser) {
-        waveSurfer = WaveSurfer.create({
-            container: "#waveSurfer",
-            waveColor: "#BA83F7",
-            progressColor: "#FF93F8",
-            cursorColor: "#FFFFFF",
-            height: "auto",
-            normalize: true,
-        });
-        window.WaveSurfer = waveSurfer;
-    }
-
-    const surferSeekWithX = (x) => {
-        const width = waveSurfer.getWidth();
-        waveSurfer.seekTo(Math.min(Math.max(0, x / width), width));
+    const surferSetAllVolume = (volume) => {
+        for (const key in WaveSurferState.waveSurfers) {
+            const instance = WaveSurferState.waveSurfers[key];
+            instance.waveSurfer.setVolume(volume);
+        }
     };
 
     const appLoadSaveStateLarge = async () => {
@@ -45,7 +42,7 @@
         const saveState = await localforage.getItem("scratchinchartin-state");
         appSaveState.volume = saveState.volume ?? 0.5;
         // parse
-        waveSurfer.setVolume(appSaveState.volume);
+        surferSetAllVolume(appSaveState.volume);
     };
     const appSaveSaveStateLarge = async () => {
         console.log("saving large", appSaveStateLarge);
@@ -54,10 +51,6 @@
     const appSaveSaveState = async () => {
         console.log("saving", appSaveState);
         await localforage.setItem("scratchinchartin-state", appSaveState);
-    };
-    const appMouseWasDown = (x, y) => {
-        if (appLoading) return;
-        surferSeekWithX(event.clientX);
     };
 
     const songImportFromBlob = async (blob) => {
@@ -119,37 +112,23 @@
         await writable.close();
     };
 
-    if (browser) {
-        let mouseDown = false;
-        window.addEventListener("mouseup", (event) => {
-            if (appLoading) return;
-            mouseDown = false;
-            appMouseWasDown(event.clientX, event.clientY);
-        });
-        window.addEventListener("mousemove", (event) => {
-            if (appLoading) return;
-            mouseDown = event.buttons & (1 << 0); // who the fuck designed this shit?
-            if (mouseDown) appMouseWasDown(event.clientX, event.clientY);
-        });
-        window.addEventListener("mousedown", (event) => {
-            if (appLoading) return;
-            mouseDown = true;
-            appMouseWasDown(event.clientX, event.clientY);
-        });
+    const componentsHasLoaded = {
+        app: false,
+        waveSurfer: false,
+    };
+    const componentLoaded = async () => {
+        if (componentsHasLoaded.app) return;
 
-        window.addEventListener("keydown", (event) => {
-            if (appLoading) return;
-            if (event.key === " ") {
-                event.preventDefault();
-                waveSurfer.playPause();
-            }
-        });
-    }
-
-    onMount(async () => {
+        // make sure all other components have loaded, then we mark app as loaded
+        if (!componentsHasLoaded.waveSurfer) return;
+        componentsHasLoaded.app = true;
+        
         await appLoadSaveStateLarge();
         await appLoadSaveState();
         appLoading = false;
+    };
+    onMount(async () => {
+        await componentLoaded();
     });
 </script>
 
@@ -196,7 +175,14 @@
     </div>
 </div>
 <div class="app-mainarea">
-    <div id="waveSurfer"></div>
+    <WaveSurferComponent
+        id="wavesurfer-main"
+        onload={(instance) => {
+            waveSurfer = instance.waveSurfer;
+            componentsHasLoaded.waveSurfer = true;
+            componentLoaded();
+        }}
+    />
 </div>
 
 <style>
@@ -302,11 +288,6 @@
     .app-mainarea {
         width: 100%;
         height: calc(100% - 32px - 64px);
-    }
-    #waveSurfer {
-        height: 100%;
-
-        background: #271027;
     }
 
     .app-loading {

@@ -36,6 +36,7 @@
     onDestroy(async () => {
         monaco?.editor.getModels().forEach((model) => model.dispose());
 		editor?.dispose();
+        instance.created = false;
     });
 </script>
 
