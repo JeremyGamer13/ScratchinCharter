@@ -25,6 +25,11 @@
             cursorColor: "#FFFFFF",
             height: "auto",
             normalize: true,
+            hideScrollbar: true,
+            interact: false,
+            dragToSeek: false,
+            autoCenter: true,
+            backend: "WebAudio" // fixes buggy zoom behavior
         });
         instance.waveSurfer = waveSurfer;
         instance.container = container;
@@ -40,7 +45,8 @@
     
     const surferSeekWithX = (x) => {
         const { scrollLeft, scrollWidth, clientWidth } = waveSurfer.renderer.scrollContainer;
-        waveSurfer.seekTo(Math.min(Math.max(0, (x + scrollLeft) / scrollWidth), 1));
+        const seekPos = Math.min(Math.max(0, (x + scrollLeft) / scrollWidth), 1);
+        waveSurfer.seekTo(seekPos);
     };
     
     // events
