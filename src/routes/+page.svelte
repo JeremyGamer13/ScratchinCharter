@@ -4,16 +4,7 @@
     import { browser } from "$app/environment";
     
     import { AutoAdjust } from '@smui/top-app-bar';
-    import Drawer, {
-        AppContent,
-        Content,
-        Header,
-        Title,
-        Subtitle,
-    } from '@smui/drawer';
-    import Textfield from '@smui/textfield';
-    import Icon from '@smui/textfield/icon';
-    import HelperText from '@smui/textfield/helper-text';
+    import { AppContent } from '@smui/drawer';
     import WaveSurfer from 'wavesurfer.js';
     import localforage from "localforage";
     
@@ -26,6 +17,7 @@
 
     // Components
     import TopBar from "$lib/components/TopBar/TopBar.svelte";
+    import Properties from "$lib/components/Properties/Properties.svelte";
     import WaveSurferComponent from "$lib/components/WaveSurfer.svelte";
     
     let appTopBar = $state(null);
@@ -48,7 +40,7 @@
     };
     const appReadSaveStateLarge = async () => {
         const song = $SaveStateLarge.song;
-        await Application.importSongFromBlob(new Blob([song]));
+        if (song) await Application.importSongFromBlob(new Blob([song]));
     };
 
     const componentsHasLoaded = {
@@ -96,23 +88,7 @@
 <TopBar />
 <AutoAdjust topAppBar={Application.state.appTopBar}>
     <div class="app-container">
-        <Drawer class="app-properties" variant={Application.state.appLoaded ? "dismissible" : null} dir="rtl" bind:open={$Settings.propertiesOpen}>
-            <Header dir="ltr">
-                <Title>Properties</Title>
-                <Subtitle>Project</Subtitle>
-            </Header>
-            <Content dir="ltr">
-                {#if Application.state.appLoaded}
-                    <Textfield style="width:100%" variant="filled" bind:value={$SaveState.chart.song} label="Audio file">{#snippet helper()}
-                        <HelperText>Path to the audio file in your Unity project.</HelperText>
-                    {/snippet}</Textfield>
-                    <Textfield style="width:100%" variant="filled" type="number" bind:value={$SaveState.chart.sampleRate} label="Sample rate">{#snippet helper()}
-                        <HelperText>Sample rate of your song file.</HelperText>
-                    {/snippet}</Textfield>
-                {/if}
-            </Content>
-        </Drawer>
-        
+        <Properties />
         <AppContent class="app-content">
             <div class="app-timingpreview">
                 <WaveSurferComponent
@@ -126,36 +102,6 @@
             </div>
         </AppContent>
     </div>
-    <!-- <div class="app-optionsbar">
-    <div class="app-optionsbar-meta">
-    <label>
-    <span>Name:</span>
-    <input type="text" value="" placeholder="File name">
-    </label>
-    <label>
-    <span>Path:</span>
-    <input type="text" value="" placeholder="File path to audio file">
-    </label>
-    <label>
-    <span style="transform: scaleX(0.75) translateX(-12px);">SampleRate:</span>
-    <input type="number" step="0.01" value="" placeholder="Sample rate">
-    </label>
-    </div>
-    <div class="app-optionsbar-timing">
-    <label>
-    <span>BPM:</span>
-    <input type="number" step="1" value={120} placeholder="BPM">
-    </label>
-    <label>
-    <span style="transform: scaleX(0.85) translateX(-6px);">IconSpeed:</span>
-    <input type="number" step="0.01" value={4.9} placeholder="Icon Speed">
-    </label>
-    <label data-left="true">
-    <input type="checkbox" checked={true}>
-    <span>Link BPM & IconSpeed?</span>
-    </label>
-    </div>
-    </div> -->
 </AutoAdjust>
 
 <style>
