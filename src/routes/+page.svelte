@@ -3,23 +3,28 @@
     import { page } from "$app/state";
     import { browser } from "$app/environment";
     
-    import * as TopAppBar from '@smui/top-app-bar';
     import WaveSurfer from 'wavesurfer.js';
     import localforage from "localforage";
+    import TopAppBar, {
+        Row,
+        Section,
+        Title,
+        AutoAdjust,
+    } from '@smui/top-app-bar';
+    import IconButton from '@smui/icon-button';
     
+    import Application from "$lib/resources/app.svelte";
+    import Settings from "$lib/stores/settings";
+    import SaveState from "$lib/stores/state";
+    import SaveStateLarge from "$lib/stores/state-large";
     import WaveSurferState from "$lib/state/wavesurfer.svelte.js";
+    import MelodiiChart from "$lib/resources/chart";
 
     // Components
+    import MenuFile from "$lib/components/TopBar/MenuFile.svelte";
     import WaveSurferComponent from "$lib/components/WaveSurfer.svelte";
     
-    let appLoading = $state(true);
     let appTopBar = $state(null);
-    let appSaveStateLarge = {
-        song: null
-    };
-    let appSaveState = {
-        volume: 0.5,
-    };
     
     /** @type {WaveSurfer} */
     let waveSurfer;
@@ -30,121 +35,77 @@
         }
     };
 
-    const appLoadSaveStateLarge = async () => {
-        // load
-        const saveStateLarge = await localforage.getItem("scratchinchartin-statelarge");
-        appSaveStateLarge.song = saveStateLarge.song;
-        // parse
-        songImportFromBlob(new Blob([appSaveStateLarge.song]));
+    const appLoadSettings = async () => {
+        surferSetAllVolume($Settings.volume ?? 0.5);
     };
     const appLoadSaveState = async () => {
-        // load
-        const saveState = await localforage.getItem("scratchinchartin-state");
-        appSaveState.volume = saveState.volume ?? 0.5;
-        // parse
-        surferSetAllVolume(appSaveState.volume);
+        const chart = $SaveState.chart || MelodiiChart.defaultChart();
+        await Application.importChartFromObject(chart);
     };
-    const appSaveSaveStateLarge = async () => {
-        console.log("saving large", appSaveStateLarge);
-        await localforage.setItem("scratchinchartin-statelarge", appSaveStateLarge);
-    };
-    const appSaveSaveState = async () => {
-        console.log("saving", appSaveState);
-        await localforage.setItem("scratchinchartin-state", appSaveState);
-    };
-
-    const songImportFromBlob = async (blob) => {
-        const audioUrl = URL.createObjectURL(blob);
-        waveSurfer.load(audioUrl);
-
-        // remember the last loaded song
-        appSaveStateLarge.song = await blob.arrayBuffer();
-        appSaveSaveStateLarge();
-    };
-    const songImport = async () => {
-        const [fileHandle] = await window.showOpenFilePicker({
-            id: "scratchin-charting-songimport",
-            multiple: false,
-            types: [{
-                description: "Audio files",
-                accept: {"audio/*": [".mp3", ".ogg", ".flac", ".wav"]}
-            }]
-        });
-        if (!fileHandle) return;
-        const fileData = await fileHandle.getFile();
-        await songImportFromBlob(fileData);
-    };
-
-    const chartImportFromObject = async (object) => {
-
-    };
-    const chartImportFromString = async (jsonStr) => {
-        const obj = JSON.parse(jsonStr);
-        await chartImportFromObject(obj);
-    };
-    const chartImport = async () => {
-        const [fileHandle] = await window.showOpenFilePicker({
-            id: "scratchin-charting-chartimport",
-            multiple: false,
-            types: [{
-                description: "Audio files",
-                accept: {"audio/*": [".mp3", ".ogg", ".flac", ".wav"]}
-            }]
-        });
-        if (!fileHandle) return;
-        const fileData = await fileHandle.getFile();
-        const decoder = new TextDecoder("utf-8");
-        const jsonStr = decoder.decode(await fileData.arrayBuffer());
-        await chartImportFromString(jsonStr);
-    };
-    const chartExport = async () => {
-        const fileHandle = await window.showSaveFilePicker({
-            id: "scratchin-charting-chartexport",
-            suggestedName: "sumidk.json",
-            types: [{
-                description: "Melodii Chart",
-                accept: {"application/json": [".json"]}
-            }]
-        });
-        const writable = await fileHandle.createWritable();
-        // TODO: actually export charts
-        await writable.write("Wouldnt it be nice to have a chart here?");
-        await writable.close();
+    const appLoadSaveStateLarge = async () => {
+        const song = $SaveStateLarge.song;
+        console.log("we are app loading", song);
+        Application.importSongFromBlob(new Blob([song]));
     };
 
     const componentsHasLoaded = {
         app: false,
+        stateSettings: false,
+        stateSave: false,
+        stateLarge: false,
         waveSurfer: false,
     };
     const componentLoaded = async () => {
         if (componentsHasLoaded.app) return;
 
         // make sure all other components have loaded, then we mark app as loaded
+        if (!componentsHasLoaded.stateSettings) return;
+        if (!componentsHasLoaded.stateSave) return;
+        if (!componentsHasLoaded.stateLarge) return;
         if (!componentsHasLoaded.waveSurfer) return;
+        // add all the components
+        Application.state.timingPreview = waveSurfer;
         componentsHasLoaded.app = true;
         
+        await appLoadSettings();
         await appLoadSaveStateLarge();
         await appLoadSaveState();
-        appLoading = false;
+        Application.state.appLoaded = true;
     };
     onMount(async () => {
+        // crazy ass shit because of inconsistent timing
+        if ($Settings.loaded) componentsHasLoaded.stateSettings = true;
+        if ($SaveState.loaded) componentsHasLoaded.stateSave = true;
+        if ($SaveStateLarge.loaded) componentsHasLoaded.stateLarge = true;
+        window.addEventListener("scratchincharting-loaded-settings", () => { componentsHasLoaded.stateSettings = true; componentLoaded(); });
+        window.addEventListener("scratchincharting-loaded-state", () => { componentsHasLoaded.stateSave = true; componentLoaded(); });
+        window.addEventListener("scratchincharting-loaded-state-large", () => { componentsHasLoaded.stateLarge = true; componentLoaded(); });
         await componentLoaded();
     });
 </script>
 
-{#if appLoading}
+{#if !Application.state.appLoaded}
     <div class="app-loading">
         <p class="app-loading-text">LOADING...</p>
     </div>
 {/if}
-<div class="app-topbar">
+
+<TopAppBar bind:this={appTopBar} variant="standard" dense>
+    <Row>
+        <Section>
+            <MenuFile {appTopBar}></MenuFile>
+        </Section>
+    </Row>
+</TopAppBar>
+<AutoAdjust topAppBar={appTopBar}>
+<!-- <div class="app-topbar">
     <img width="32" height="32" src="/favicon.svg" alt="Favicon" />
 
     <button disabled={appLoading} onclick={chartImport}>Import Chart</button>
     <button disabled={appLoading} onclick={songImport}>Import Song</button>
     <button disabled={appLoading} onclick={chartExport}>Export</button>
-</div>
-<div class="app-optionsbar">
+</div> -->
+<!-- <div class="app-optionsbar">
     <div class="app-optionsbar-meta">
         <label>
             <span>Name:</span>
@@ -173,7 +134,7 @@
             <span>Link BPM & IconSpeed?</span>
         </label>
     </div>
-</div>
+</div> -->
 <div class="app-mainarea">
     <WaveSurferComponent
         id="wavesurfer-main"
@@ -184,112 +145,9 @@
         }}
     />
 </div>
+</AutoAdjust>
 
 <style>
-    .app-topbar {
-        width: 100%;
-        height: 32px;
-
-        background: #542353;
-    }
-    .app-topbar {
-        display: flex;
-        flex-direction: row;
-    }
-    .app-topbar button,
-    .app-topbar input,
-    .app-optionsbar button,
-    .app-optionsbar input {
-        margin: 0;
-        padding: 0;
-        border: 0;
-        height: 100%;
-    }
-    .app-topbar button,
-    .app-topbar label,
-    .app-optionsbar button,
-    .app-optionsbar label {
-        color: white;
-        font-family: Helvetica, Arial, sans-serif;
-    }
-    .app-topbar button {
-        margin: 0 4px;
-        padding: 0 8px;
-
-        background: transparent;
-        font-weight: bold;
-    }
-    .app-topbar button:hover {
-        background: rgba(255, 255, 255, 0.1);
-
-        cursor: pointer;
-    }
-
-    .app-optionsbar {
-        width: 100%;
-        height: 64px;
-        
-        display: flex;
-        flex-direction: row;
-
-        background: #3d1b3d;
-    }
-    .app-optionsbar-meta {
-        width: 200px;
-        height: 100%;
-        
-        display: flex;
-        flex-direction: column;
-    }
-    .app-optionsbar-timing {
-        width: 210px;
-        height: 100%;
-
-        display: flex;
-        flex-direction: column;
-    }
-    .app-optionsbar-meta label,
-    .app-optionsbar-timing label {
-        width: 100%;
-        height: calc(100% / 3);
-        
-        display: flex;
-        flex-direction: row;
-    }
-    .app-optionsbar-meta label:nth-child(2),
-    .app-optionsbar-timing label:nth-child(2) {
-        background: rgba(255, 255, 255, 0.1);
-    }
-    .app-optionsbar-meta label span,
-    .app-optionsbar-timing label span {
-        display: block;
-
-        width: 72px;
-    }
-    .app-optionsbar-meta label[data-left="true"] span,
-    .app-optionsbar-timing label[data-left="true"] span {
-        width: calc(100% - 32px);
-    }
-    .app-optionsbar-meta label input[type="text"],
-    .app-optionsbar-meta label input[type="number"],
-    .app-optionsbar-timing label input[type="text"],
-    .app-optionsbar-timing label input[type="number"] {
-        width: calc(100% - 72px);
-        height: 100%;
-    }
-    .app-optionsbar-meta label input[type="checkbox"],
-    .app-optionsbar-meta label input[type="radio"],
-    .app-optionsbar-timing label input[type="checkbox"],
-    .app-optionsbar-timing label input[type="radio"] {
-        width: 32px;
-        height: 100%;
-    }
-
-    .app-mainarea {
-        width: 100%;
-        height: calc(100% - 32px - 64px);
-    }
-
     .app-loading {
         position: absolute;
         width: 100%;
