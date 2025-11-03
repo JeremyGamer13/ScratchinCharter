@@ -1,6 +1,7 @@
 <script>
-    import loader from '@monaco-editor/loader';
 	import { onDestroy, onMount } from 'svelte';
+    
+    import loader from '@monaco-editor/loader';
 
     import MonacoState from "$lib/state/monaco.svelte.js";
 
