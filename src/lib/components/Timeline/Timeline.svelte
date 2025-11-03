@@ -29,6 +29,7 @@
         timeline.onScroll((event) => {
             if (!options) return;
             if (!outlineContainer) return;
+            // keeps empty space from being misaligned
             outlineContainer.style.minHeight = event.scrollHeight + 'px';
             if (!outlineScrollContainer) return;
             outlineScrollContainer.scrollTop = event.scrollTop;
@@ -46,6 +47,9 @@
 
         rows.splice(0, rows.length);
         rows.push(...model.rows);
+    };
+    const outlineScrolled = (event) => {
+        timeline?._handleWheelEvent(event);
     };
     onMount(async () => {
         if (instance.created) return;
@@ -73,7 +77,7 @@
 <div class="timeline-container">
     <div class="outline">
         <div class="outline-header" id="outline-header" bind:this={outlineHeader}></div>
-        <div class="outline-scroll-container" bind:this={outlineScrollContainer} onscroll={(event) => timeline?._handleWheelEvent(event)}>
+        <div class="outline-scroll-container" bind:this={outlineScrollContainer} onmousewheel={outlineScrolled}>
             <div class="outline-items" bind:this={outlineContainer}>
                 {#if timeline && outlineTimelineOptions}
                     {#each rows as row, index}
@@ -128,7 +132,8 @@
         height: 30px;
     }
     .outline-scroll-container {
-        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: hidden;
     }
     .outline-node {
         width: 100%;
