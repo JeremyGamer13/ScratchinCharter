@@ -8,6 +8,7 @@
     import WaveSurferState from "$lib/state/wavesurfer.svelte.js";
     
     let props = $props();
+    /** @type {HTMLDivElement} */
     let container = null;
     
     const id = props.id ?? `wavesurfer${Date.now()}${Math.random()}${Math.random()}${Math.random()}${Math.random()}`;
@@ -38,8 +39,8 @@
     });
     
     const surferSeekWithX = (x) => {
-        const width = waveSurfer.getWidth();
-        waveSurfer.seekTo(Math.min(Math.max(0, x / width), width));
+        const { scrollLeft, scrollWidth, clientWidth } = waveSurfer.renderer.scrollContainer;
+        waveSurfer.seekTo(Math.min(Math.max(0, (x + scrollLeft) / scrollWidth), 1));
     };
     
     // events
@@ -60,6 +61,16 @@
         container.addEventListener("mousedown", (event) => {
             mouseDown = true;
             surferSeekWithX(event.clientX);
+        });
+
+        let userZoom = 0;
+        container.addEventListener("wheel", (event) => {
+            // the max zoom is 1 sample filling the whole canvas
+            const songData = waveSurfer.getDecodedData();
+            const max = waveSurfer.getWidth() * songData.sampleRate;
+            const zoom = -event.deltaY;
+            userZoom = Math.max(0, Math.min(userZoom + zoom, max));
+            waveSurfer.zoom(userZoom);
         });
 
         window.addEventListener("keydown", (event) => {
