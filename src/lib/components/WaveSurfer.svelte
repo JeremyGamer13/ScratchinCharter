@@ -46,14 +46,18 @@
     onMount(() => {
         let mouseDown = false;
         window.addEventListener("mouseup", (event) => {
+            if (mouseDown) {
+                surferSeekWithX(event.clientX);
+            }
             mouseDown = false;
-            surferSeekWithX(event.clientX);
         });
         window.addEventListener("mousemove", (event) => {
-            mouseDown = event.buttons & (1 << 0); // who the fuck designed this shit?
-            if (mouseDown) surferSeekWithX(event.clientX);
+            const stillDown = event.buttons & (1 << 0); // who the fuck designed this shit?
+            if (mouseDown && stillDown) {
+                surferSeekWithX(event.clientX);
+            }
         });
-        window.addEventListener("mousedown", (event) => {
+        container.addEventListener("mousedown", (event) => {
             mouseDown = true;
             surferSeekWithX(event.clientX);
         });
