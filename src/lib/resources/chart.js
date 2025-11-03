@@ -5,13 +5,15 @@ class MelodiiChart {
             "song": "",
             "version": 1,
             "sampleRate": 44100,
-            "sections": [],
+            "sections": [
+                this.defaultSection(),
+            ],
             "tracks": {}
         };
     }
     static defaultSection() {
         return {
-            "name": "",
+            "name": "Section",
             "start": 0,
             "samplesPerBeat": 22050,
             "beatsPerMeasurement": 4
