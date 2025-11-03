@@ -31,14 +31,14 @@
                 <HelperText>Path to the audio file in your Unity project.</HelperText>
             {/snippet}</Textfield>
             <Textfield style="width:100%" variant="filled" type="number"
-                invalid={$SaveState.chart.sampleRate <= 0 || ($SaveState.chart.sampleRate !== Math.round($SaveState.chart.sampleRate))}
+                invalid={!MelodiiChart.isValidSampleRate($SaveState.chart.sampleRate)}
                 bind:value={$SaveState.chart.sampleRate}
                 label="Sample rate"
             >{#snippet helper()}
                 <HelperText>Sample rate of your song file.</HelperText>
             {/snippet}</Textfield>
             <Textfield style="width:100%" variant="filled" type="number"
-                invalid={$SaveState.chart.version < 0 || ($SaveState.chart.version !== Math.round($SaveState.chart.version))}
+                invalid={!MelodiiChart.isValidVersion($SaveState.chart.version)}
                 bind:value={$SaveState.chart.version}
                 label="Chart version"
             >{#snippet helper()}

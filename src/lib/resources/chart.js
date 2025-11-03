@@ -1,14 +1,10 @@
 class MelodiiChart {
     static defaultChart() {
         return {
-            "chartVersion": "1",
+            "format": "1",
             "song": "",
             "version": 1,
             "sampleRate": 44100,
-            "speed": {
-                "player": 4.9,
-                "mentor": 4.9
-            },
             "sections": [],
             "tracks": {}
         };
@@ -22,6 +18,12 @@ class MelodiiChart {
         };
     }
 
+    static isValidVersion(version) {
+        return Number.isSafeInteger(version) && version >= 0;
+    }
+    static isValidSampleRate(sampleRate) {
+        return Number.isSafeInteger(sampleRate) && sampleRate > 0;
+    }
     static isValidEventId(eventId) {
         // arbitrary but probably a good idea
         return (/[a-zA-Z0-9\-\_]/gi).test(eventId);
