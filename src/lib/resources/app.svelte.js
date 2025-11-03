@@ -5,6 +5,8 @@ import SaveState from "$lib/stores/state";
 import SaveStateLarge from "$lib/stores/state-large";
 import MelodiiChart from "$lib/resources/chart";
 
+import updateStore from './update-store';
+
 const state = $state({
     appLoaded: false,
 
@@ -20,14 +22,11 @@ class Application {
     static async importSongFromBlob(blob) {
         if (!state.timingPreview) return;
         const audioUrl = URL.createObjectURL(blob);
-        state.timingPreview.load(audioUrl);
+        await state.timingPreview.load(audioUrl);
 
         // remember the last loaded song
         const arrayBuffer = await blob.arrayBuffer();
-        const originalStore = stores.get(SaveStateLarge);
-        originalStore.song = arrayBuffer;
-        console.log("should save", originalStore);
-        SaveStateLarge.set(originalStore);
+        updateStore(SaveStateLarge, (state) => { state.song = arrayBuffer });
     };
     static async importChartFromObject(object) {
 

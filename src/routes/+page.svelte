@@ -44,8 +44,7 @@
     };
     const appLoadSaveStateLarge = async () => {
         const song = $SaveStateLarge.song;
-        console.log("we are app loading", song);
-        Application.importSongFromBlob(new Blob([song]));
+        await Application.importSongFromBlob(new Blob([song]));
     };
 
     const componentsHasLoaded = {
