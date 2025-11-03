@@ -24,12 +24,22 @@
     
     /** @type {WaveSurfer} */
     let waveSurfer;
+    let waveSurferContainer;
     const surferSetAllVolume = (volume) => {
         for (const key in WaveSurferState.waveSurfers) {
             const instance = WaveSurferState.waveSurfers[key];
             instance.waveSurfer.setVolume(volume);
         }
     };
+    onMount(() => {
+        // Listen for resize so we can tell waveSurfer to update
+        const observer = new ResizeObserver(() => {
+            if (!waveSurfer) return;
+            // TODO: Save the new size to settings
+            waveSurfer.renderer.onContainerResize();
+        });
+        observer.observe(waveSurferContainer);
+    });
 
     const appReadSettings = async () => {
         surferSetAllVolume($Settings.volume ?? 0.5);
@@ -90,7 +100,7 @@
     <div class="app-container">
         <Properties />
         <AppContent class="app-content">
-            <div class="app-timingpreview">
+            <div class="app-timingpreview" bind:this={waveSurferContainer}>
                 <WaveSurferComponent
                     id="wavesurfer-main"
                     onload={(instance) => {
@@ -132,7 +142,12 @@
     }
     .app-timingpreview {
         width: 100%;
-        height: 100%;
+        height: 25%;
+        min-height: 24px;
+        max-height: 100%;
+        resize: vertical;
+
+        overflow: hidden;
     }
 
     .app-loading {
