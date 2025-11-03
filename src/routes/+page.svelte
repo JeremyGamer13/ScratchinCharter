@@ -167,6 +167,8 @@
     .app-container {
         width: 100%;
         height: 100%;
+
+        background: #271027;
     }
     :global(main .app-properties) {
         width: 25%;
@@ -178,6 +180,9 @@
     :global(main .app-container .mdc-drawer.mdc-drawer--open:not(.mdc-drawer--closing) + .app-content) {
         margin-left: 0 !important;
         width: calc(100% - 25%);
+    }
+    :global(.app-content) {
+        height: 100%;
     }
     .app-timingpreview {
         width: 100%;
