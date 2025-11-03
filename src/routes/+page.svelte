@@ -19,6 +19,7 @@
     import TopBar from "$lib/components/TopBar/TopBar.svelte";
     import Properties from "$lib/components/Properties/Properties.svelte";
     import WaveSurferComponent from "$lib/components/WaveSurfer.svelte";
+    import Timeline from "$lib/components/Timeline/Timeline.svelte";
     
     let appTopBar = $state(null);
     
@@ -41,6 +42,8 @@
         observer.observe(waveSurferContainer);
     });
 
+    let timeline;
+
     const appReadSettings = async () => {
         surferSetAllVolume($Settings.volume ?? 0.5);
     };
@@ -59,6 +62,7 @@
         stateSave: false,
         stateLarge: false,
         waveSurfer: false,
+        timeline: false,
     };
     const componentLoaded = async () => {
         if (componentsHasLoaded.app) return;
@@ -68,8 +72,10 @@
         if (!componentsHasLoaded.stateSave) return;
         if (!componentsHasLoaded.stateLarge) return;
         if (!componentsHasLoaded.waveSurfer) return;
+        if (!componentsHasLoaded.timeline) return;
         // add all the components
         Application.state.timingPreview = waveSurfer;
+        Application.state.timeline = timeline;
         componentsHasLoaded.app = true;
         
         await appReadSettings();
@@ -110,6 +116,16 @@
                     }}
                 />
             </div>
+            <div class="app-timeline">
+                <Timeline
+                    id="timeline-main"
+                    onload={(instance) => {
+                        timeline = instance;
+                        componentsHasLoaded.timeline = true;
+                        componentLoaded();
+                    }}
+                />
+            </div>
         </AppContent>
     </div>
 </AutoAdjust>
@@ -139,13 +155,24 @@
     }
     :global(.app-content) {
         height: 100%;
+
+        display: flex;
+        flex-direction: column;
     }
     .app-timingpreview {
         width: 100%;
         height: 25%;
         min-height: 24px;
-        max-height: 100%;
+        max-height: calc(100% - 128px);
         resize: vertical;
+
+        overflow: hidden;
+    }
+    .app-timeline {
+        width: 100%;
+        min-height: 128px;
+        
+        flex: 1;
 
         overflow: hidden;
     }

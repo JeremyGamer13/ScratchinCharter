@@ -1,6 +1,6 @@
 <script>
     import Timeline from "$lib/components/Timeline/Timeline.svelte";
-    import TimelineState from "$lib/state/monaco.svelte.js";
+    import TimelineState from "$lib/state/timeline.svelte.js";
 
     const onLoad = (timelineInstance) => {
         window.TimelineSvelte = timelineInstance;

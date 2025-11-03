@@ -15,6 +15,7 @@ const state = $state({
     timingPreview: null,
     /** @type {import("wavesurfer.js").default} */
     clipPreview: null,
+    timeline: null,
 });
 
 class Application {
