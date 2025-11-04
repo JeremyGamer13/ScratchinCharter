@@ -111,7 +111,7 @@
         </Header>
         <Content id={`${dialog.id}content`}>
             {#if dialog.content}
-                <p>{dialog.content}</p>
+                <p style="white-space: pre-wrap;">{dialog.content}</p>
             {/if}
             {#if dialog.field}
                 {#if dialog.field.type === "Textfield"}

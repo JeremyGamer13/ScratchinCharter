@@ -81,7 +81,7 @@
 
         /** @type {HTMLElement?} */
         let lastFocusedElement = null;
-        window.addEventListener("click", (event) => {
+        window.addEventListener("mousedown", (event) => {
             lastFocusedElement = event.target;
         });
         window.addEventListener("keydown", (event) => {

@@ -15,33 +15,14 @@
     let menu = null;
 
     const songImport = async () => {
-        const [fileHandle] = await window.showOpenFilePicker({
-            id: "scratchin-charting-songimport",
-            multiple: false,
-            types: [{
-                description: "Audio files",
-                accept: {"audio/*": [".mp3", ".ogg", ".flac", ".wav"]}
-            }]
-        });
-        if (!fileHandle) return;
-        const fileData = await fileHandle.getFile();
+        const fileData = await Application.askForSongBlob();
         await Application.importSongFromBlob(fileData);
     };
 
     const chartImport = async () => {
-        const [fileHandle] = await window.showOpenFilePicker({
-            id: "scratchin-charting-chartimport",
-            multiple: false,
-            types: [{
-                description: "Melodii Chart",
-                accept: {"application/json": [".json"]}
-            }]
-        });
-        if (!fileHandle) return;
-        const fileData = await fileHandle.getFile();
-        const decoder = new TextDecoder("utf-8");
-        const jsonStr = decoder.decode(await fileData.arrayBuffer());
+        const jsonStr = await Application.askForChartString();
         await Application.importChartFromString(jsonStr);
+        Application.loadChartIntoTimeline();
     };
     const chartExport = async () => {
         const fileHandle = await window.showSaveFilePicker({

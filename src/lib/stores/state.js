@@ -4,6 +4,7 @@ import localforage from 'localforage';
 
 const defaultState = {
     loaded: false,
+    newProject: true,
     chart: null,
 };
 

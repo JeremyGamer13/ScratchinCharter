@@ -26,6 +26,7 @@ class MelodiiChart {
         return Number.isSafeInteger(version) && version >= 0;
     }
     static isValidSampleRate(sampleRate) {
+        if (!sampleRate) return false;
         return Number.isSafeInteger(sampleRate) && sampleRate > 0;
     }
     static isValidEventId(eventId) {

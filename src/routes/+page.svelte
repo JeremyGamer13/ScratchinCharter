@@ -12,6 +12,7 @@
     import Settings from "$lib/stores/settings";
     import SaveState from "$lib/stores/state";
     import SaveStateLarge from "$lib/stores/state-large";
+    import SMUIPrompts from "$lib/resources/smui-prompts";
     import WaveSurferState from "$lib/state/wavesurfer.svelte.js";
     import MelodiiChart from "$lib/resources/chart";
 
@@ -69,13 +70,13 @@
         surferSetAllVolume($Settings.volume ?? 0.5);
     };
     const appReadSaveState = async () => {
-        const chart = $SaveState.chart || MelodiiChart.defaultChart();
+        const chart = $SaveState.chart;
         await Application.importChartFromObject(chart);
         Application.loadChartIntoTimeline();
     };
     const appReadSaveStateLarge = async () => {
         const song = $SaveStateLarge.song;
-        if (song) await Application.importSongFromBlob(new Blob([song]));
+        await Application.importSongFromBlob(new Blob([song]));
     };
 
     const componentsHasLoaded = {
@@ -101,7 +102,12 @@
         editorsAttachEachother();
         componentsHasLoaded.app = true;
         
+        // Only interrupt reading if we need to create a new project.
         await appReadSettings();
+        if ($SaveState.newProject) {
+            await Application.newProjectOnboarding();
+            $SaveState.newProject = false;
+        }
         await appReadSaveStateLarge();
         await appReadSaveState();
         Application.state.appLoaded = true;
@@ -216,7 +222,7 @@
         overflow: hidden;
 
         user-select: none;
-        z-index: 999999;
+        z-index: 6;
     }
     .app-loading-text {
         color: white;
