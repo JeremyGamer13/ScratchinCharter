@@ -82,18 +82,28 @@
         const values = keyframes.map(keyframe => keyframe[key]);
         return values[0];
     };
-    const propertiesSectionSetValue = (event, key, keyframes) => {
+    const propertiesSectionSetValue = (value, key, keyframes) => {
         const model = Application.state.timeline.timeline.getModel();
         const resolvedKeyframes = Application.state.timeline.melodii.resolveKeyframes(keyframes, model);
 
-        const newValue = event.target.value;
+        const newValue = value;
         for (const keyframe of resolvedKeyframes) {
             keyframe[key] = newValue;
         }
         Application.state.timeline.timeline.setModel(model);
-
         Application.state.timeline.melodii.applyChartChanges();
-        Application.state.timeline.melodii.reloadChart();
+    };
+    const propertiesSectionSetEventValue = (event, key, keyframes) => {
+        propertiesSectionSetValue(event.target.value, key, keyframes);
+    };
+    const propertiesSectionGetBPMNumber = (key, keyframes = []) => {
+        const values = keyframes.map(keyframe => keyframe[key]);
+        const samplesPerBeat = values[0];
+        return ($SaveState.chart.sampleRate * 60) / samplesPerBeat;
+    };
+    const propertiesSectionSetEventBPMValue = (event, key, keyframes) => {
+        const bpm = event.target.value;
+        propertiesSectionSetValue(Math.trunc(($SaveState.chart.sampleRate * 60) / bpm), key, keyframes);
     };
 </script>
 
@@ -116,21 +126,21 @@
                 <!-- Section -->
                 <Textfield style="width:100%" variant="filled" type="text"
                     value={propertiesSectionGetValue("name", Application.state.timeline.reactive.selectedKeyframes)}
-                    oninput={(event) => propertiesSectionSetValue(event, "name", Application.state.timeline.reactive.selectedKeyframes)}
+                    oninput={(event) => propertiesSectionSetEventValue(event, "name", Application.state.timeline.reactive.selectedKeyframes)}
                     label="Name"
                 >{#snippet helper()}
                     <HelperText>Custom name for this section.</HelperText>
                 {/snippet}</Textfield>
                 <Textfield style="width:100%" variant="filled" type="number"
-                    value={propertiesSectionGetValueNumber("samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
-                    oninput={(event) => propertiesSectionSetValue(event, "samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
-                    label="samplesPerBeat"
+                    value={propertiesSectionGetBPMNumber("samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
+                    oninput={(event) => propertiesSectionSetEventBPMValue(event, "samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
+                    label="BPM"
                 >{#snippet helper()}
-                    <HelperText>samplesPerBeat</HelperText>
+                    <HelperText>The BPM (beats per minute) for this section onwards.</HelperText>
                 {/snippet}</Textfield>
                 <Textfield style="width:100%" variant="filled" type="number"
                     value={propertiesSectionGetValueNumber("beatsPerMeasurement", Application.state.timeline.reactive.selectedKeyframes)}
-                    oninput={(event) => propertiesSectionSetValue(event, "beatsPerMeasurement", Application.state.timeline.reactive.selectedKeyframes)}
+                    oninput={(event) => propertiesSectionSetEventValue(event, "beatsPerMeasurement", Application.state.timeline.reactive.selectedKeyframes)}
                     label="beatsPerMeasurement"
                 >{#snippet helper()}
                     <HelperText>beatsPerMeasurement</HelperText>
