@@ -57,6 +57,25 @@
     };
     const propertiesSectionsAddNew = () => {
         Application.saveCurrentChartTimeline();
+
+        const chart = $SaveState.chart;
+        const cursorTime = Application.state.timeline.timeline.getTime();
+        const sampleTime = (cursorTime / 1000) * chart.sampleRate;
+        const newSection = MelodiiChart.defaultSection();
+        newSection.start = sampleTime;
+
+        // Copy the last section's timing info
+        const previousSections = chart.sections.filter(section => section.start <= sampleTime);
+        const previousSection = previousSections[0] ? previousSections[previousSections.length - 1] : null;
+        if (previousSection) {
+            newSection.samplesPerBeat = previousSection.samplesPerBeat;
+            newSection.beatsPerMeasurement = previousSection.beatsPerMeasurement;
+        }
+
+        // Update chart, validate & reload
+        chart.sections.push(newSection);
+        Application.validateChart();
+        Application.loadChartIntoTimeline();
     };
 </script>
 

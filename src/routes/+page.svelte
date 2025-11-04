@@ -121,6 +121,7 @@
         window.addEventListener("scratchincharting-loaded-state", () => { componentsHasLoaded.stateSave = true; componentLoaded(); });
         window.addEventListener("scratchincharting-loaded-state-large", () => { componentsHasLoaded.stateLarge = true; componentLoaded(); });
         await componentLoaded();
+        window.ScratchinCharter = Application;
     });
 </script>
 

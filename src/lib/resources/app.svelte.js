@@ -25,6 +25,20 @@ const state = $state({
 class Application {
     static state = state;
 
+    // for development
+    static inspectSettings() {
+        const settings = stores.get(Settings);
+        return settings;
+    }
+    static inspectSaveState() {
+        const saveState = stores.get(SaveState);
+        return saveState;
+    }
+    static inspectSaveStateLarge() {
+        const saveStateLarge = stores.get(SaveStateLarge);
+        return saveStateLarge;
+    }
+
     static async newProjectOnboarding() {
         let loadExisting = null;
         while (typeof loadExisting !== "boolean") {
@@ -113,7 +127,16 @@ class Application {
         }
 
         updateStore(SaveState, (state) => { state.chart = chart; });
+        this.validateChart();
         this.loadChartIntoTimeline();
+    }
+    static validateChart() {
+        const saveState = stores.get(SaveState);
+        const chart = saveState.chart;
+
+        const goodChart = MelodiiChart.validateChart(chart);
+        updateStore(SaveState, (state) => { state.chart = goodChart; });
+        return goodChart;
     }
 
     static async askForSongBlob() {
@@ -161,6 +184,7 @@ class Application {
     };
     static async importChartFromObject(object) {
         updateStore(SaveState, (state) => { state.chart = object; });
+        this.validateChart();
     };
     static async importChartFromString(jsonStr) {
         const obj = JSON.parse(jsonStr);

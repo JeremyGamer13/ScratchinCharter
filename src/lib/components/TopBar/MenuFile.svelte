@@ -25,6 +25,7 @@
 
         $SaveState.newProject = true;
         $SaveState.chart = MelodiiChart.defaultChart();
+        Application.validateChart();
         location.reload();
     };
 

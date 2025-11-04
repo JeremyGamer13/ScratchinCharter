@@ -34,6 +34,33 @@ class MelodiiChart {
         return (/[a-zA-Z0-9\-\_]/gi).test(eventId);
     }
 
+    static validateChart(chart) {
+        /**
+         * @type {{ sections:[{}] }}
+         */
+        const fixedChart = structuredClone(chart);
+        // chart props
+        if (!this.isValidVersion(fixedChart.version))
+            fixedChart.version = 1;
+        if (!this.isValidSampleRate(fixedChart.sampleRate))
+            fixedChart.sampleRate = Math.trunc(Number(fixedChart.sampleRate));
+        if (!this.isValidSampleRate(fixedChart.sampleRate))
+            fixedChart.sampleRate = 44100; // RIP timing but no other way to fix sampleRate
+
+        // fix sections, sort and remove duplicate timings
+        fixedChart.sections.sort((a, b) => a.start - b.start);
+        fixedChart.sections = fixedChart.sections.map(section => {
+            if (!this.isValidSampleRate(section.samplesPerBeat))
+                section.samplesPerBeat = Math.trunc(Number(section.samplesPerBeat));
+            if (!this.isValidSampleRate(section.samplesPerBeat))
+                section.samplesPerBeat = 22050; // RIP timing but no other way to fix samplesPerBeat
+            return section;
+        });
+        fixedChart.sections = fixedChart.sections.filter((section, i) => fixedChart.sections.findIndex(s => s.start === section.start) === i);
+
+        return fixedChart
+    }
+
     /** @returns {import("animation-timeline-js").TimelineModel} */
     static getTimelineForSections(chart) {
         // we can mostly map each section to a keyframe easily,
@@ -68,13 +95,14 @@ class MelodiiChart {
     static parseTimelineAsSections(model, sampleRate) {
         if (model.rows.length > 1) throw new Error("Unexpected row count " + model.rows.length);
         const timelineSections = model.rows[0];
-        return timelineSections.keyframes.map(keyframe => ({
+        const sections = timelineSections.keyframes.map(keyframe => ({
             ...(this.defaultSection()),
             "name": keyframe.name,
-            "start": (keyframe.val / 1000) * sampleRate,
+            "start": Math.trunc((keyframe.val / 1000) * sampleRate),
             "samplesPerBeat": keyframe.samplesPerBeat,
             "beatsPerMeasurement": keyframe.beatsPerMeasurement
         }));
+        return sections;
     }
 }
 
