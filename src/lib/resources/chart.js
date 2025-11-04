@@ -35,11 +35,16 @@ class MelodiiChart {
 
     /** @returns {import("animation-timeline-js").TimelineModel} */
     static getTimelineForSections(chart) {
-        const keyframes = [
-            {
-                val: 0
-            }
-        ];
+        // we can mostly map each section to a keyframe easily,
+        // but we need 1 keyframe at the very beginning
+        // and it cannot be moved.
+        const keyframes = chart.sections.map(section => ({
+            val: section.start
+        }));
+        if (!keyframes[0]) keyframes[0] = { val: 0 };
+        // make the first keyframe not movable
+        const firstKeyframe = keyframes[0];
+        firstKeyframe.draggable = false;
         return {
             rows: [
                 {

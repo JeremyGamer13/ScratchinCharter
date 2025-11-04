@@ -137,7 +137,8 @@
                             class="outline-node"
                             variant={row.title === selectedRow ? "unelevated" : null}
                             onclick={() => { selectedRow = row.title; }}
-                            style={`justify-content: flex-start;max-height:${(row.style ? row.style.height : 0) || (outlineTimelineOptions.rowsStyle ? outlineTimelineOptions.rowsStyle.height : 0)}px;`
+                            style={`justify-content: flex-start;`
+                                + `max-height:${(row.style ? row.style.height : 0) || (outlineTimelineOptions.rowsStyle ? outlineTimelineOptions.rowsStyle.height : 0)}px;`
                                 + `min-height:${(row.style ? row.style.height : 0) || (outlineTimelineOptions.rowsStyle ? outlineTimelineOptions.rowsStyle.height : 0)}px;`
                                 + `margin-bottom:${((outlineTimelineOptions.rowsStyle ? outlineTimelineOptions.rowsStyle.marginBottom : 0) || 0)}px;`}
                         >
