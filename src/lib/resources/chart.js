@@ -34,8 +34,12 @@ class MelodiiChart {
     }
 
     /** @returns {import("animation-timeline-js").TimelineModel} */
-    static getTimelineForSections() {
-        const keyframes = [];
+    static getTimelineForSections(chart) {
+        const keyframes = [
+            {
+                val: 0
+            }
+        ];
         return {
             rows: [
                 {

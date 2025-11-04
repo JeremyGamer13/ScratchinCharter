@@ -25,9 +25,11 @@ class Application {
     static state = state;
 
     static loadChartIntoTimeline() {
-        if (state.timeline) return;
+        if (!state.timeline) return;
+        const saveState = stores.get(SaveState);
+        const chart = saveState.chart;
         if (state.timelineMode === "sections") {
-            const timelineModel = MelodiiChart.getTimelineForSections();
+            const timelineModel = MelodiiChart.getTimelineForSections(chart);
             state.timeline.timeline.setModel(timelineModel);
         }
         state.timeline.rerenderOutline();

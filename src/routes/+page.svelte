@@ -32,6 +32,12 @@
             instance.waveSurfer.setVolume(volume);
         }
     };
+    const surferGetsTimeUpdate = (newTime) => {
+        if (Application.state.timelineMode == "sections") {
+            // newTime is in MS
+            waveSurfer.setTime(newTime / 1000);
+        }
+    };
     onMount(() => {
         // Listen for resize so we can tell waveSurfer to update
         const observer = new ResizeObserver(() => {
@@ -43,6 +49,21 @@
     });
 
     let timeline;
+    const timelineGetsSurferUpdate = (newTime) => {
+        // newTime is in seconds
+        if (Application.state.timelineMode == "sections") {
+            timeline.timeline.setTime(newTime * 1000);
+        }
+    };
+    const editorsAttachEachother = () => {
+        waveSurfer.on("timeupdate", timelineGetsSurferUpdate);
+        waveSurfer.on("seek", timelineGetsSurferUpdate);
+        waveSurfer.on("audioprocess", timelineGetsSurferUpdate);
+        timeline.timeline.onTimeChanged((event) => {
+            if (event.source !== "user") return;
+            surferGetsTimeUpdate(event.val);
+        });
+    };
 
     const appReadSettings = async () => {
         surferSetAllVolume($Settings.volume ?? 0.5);
@@ -50,7 +71,7 @@
     const appReadSaveState = async () => {
         const chart = $SaveState.chart || MelodiiChart.defaultChart();
         await Application.importChartFromObject(chart);
-        await Application.loadChartIntoTimeline();
+        Application.loadChartIntoTimeline();
     };
     const appReadSaveStateLarge = async () => {
         const song = $SaveStateLarge.song;
@@ -77,6 +98,7 @@
         // add all the components
         Application.state.timingPreview = waveSurfer;
         Application.state.timeline = timeline;
+        editorsAttachEachother();
         componentsHasLoaded.app = true;
         
         await appReadSettings();
