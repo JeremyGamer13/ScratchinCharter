@@ -79,7 +79,15 @@
             waveSurfer.zoom(userZoom);
         });
 
+        /** @type {HTMLElement?} */
+        let lastFocusedElement = null;
+        window.addEventListener("click", (event) => {
+            lastFocusedElement = event.target;
+        });
         window.addEventListener("keydown", (event) => {
+            if (!lastFocusedElement) return;
+            const appContent = document.getElementById("app-content");
+            if (!appContent.contains(lastFocusedElement)) return;
             if (event.key === " ") {
                 event.preventDefault();
                 waveSurfer.playPause();

@@ -126,9 +126,9 @@
 
 <TopBar />
 <AutoAdjust topAppBar={Application.state.appTopBar}>
-    <div class="app-container">
+    <div class="app-container" id="app-container">
         <Properties />
-        <AppContent class="app-content">
+        <AppContent class="app-content" id="app-content">
             <div class="app-timingpreview" bind:this={waveSurferContainer}>
                 <WaveSurferComponent
                     id="wavesurfer-main"
