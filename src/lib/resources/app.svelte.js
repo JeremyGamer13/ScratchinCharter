@@ -32,8 +32,8 @@ class Application {
             if (loadExisting === false) break;
             try {
                 const chart = await this.askForChartString();
-                await Application.importChartFromString(chart);
-                Application.loadChartIntoTimeline();
+                await this.importChartFromString(chart);
+                this.loadChartIntoTimeline();
             } catch (err) {
                 loadExisting = null;
                 console.error(err);
@@ -53,7 +53,7 @@ class Application {
                 + `\n` + `Please make sure the audio file is the same one you will use in your mod, and that it is compatible with Unity 2021.`);
             try {
                 songBlob = await this.askForSongBlob();
-                await Application.importSongFromBlob(songBlob);
+                await this.importSongFromBlob(songBlob);
             } catch (err) {
                 console.error(err);
                 await SMUIPrompts.alert(`An error occurred.`
@@ -88,8 +88,8 @@ class Application {
 
             const chart = MelodiiChart.defaultChart();
             chart.sampleRate = sampleRate;
-            await Application.importChartFromObject(chart);
-            Application.loadChartIntoTimeline();
+            await this.importChartFromObject(chart);
+            this.loadChartIntoTimeline();
         }
     }
 
@@ -102,6 +102,18 @@ class Application {
             state.timeline.timeline.setModel(timelineModel);
         }
         state.timeline.reactive.rerenderOutline();
+    }
+    static saveCurrentChartTimeline() {
+        if (!state.timeline) return;
+        const saveState = stores.get(SaveState);
+        const chart = saveState.chart;
+        if (state.timelineMode === "sections") {
+            const timelineModel = state.timeline.timeline.getModel();
+            chart.sections = MelodiiChart.parseTimelineAsSections(timelineModel, chart.sampleRate);
+        }
+
+        updateStore(SaveState, (state) => { state.chart = chart; });
+        this.loadChartIntoTimeline();
     }
 
     static async askForSongBlob() {

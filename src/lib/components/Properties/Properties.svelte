@@ -18,6 +18,10 @@
     import SMUIPrompts from '$lib/resources/smui-prompts';
     import MelodiiChart from "$lib/resources/chart";
 
+    let sectionsSelected = $derived(Application.state.timelineMode === "sections" ?
+        Application.state.timeline && Application.state.timeline.reactive.selectedRow === "Sections"
+        : false);
+
     const propertiesProjectConvertRate = async () => {
         const doConvert = await SMUIPrompts.confirm("Are you sure you want to change the Sample rate of your chart?"
             + "\n"
@@ -51,36 +55,53 @@
         // TODO: this
         throw new Error("Not implemented");
     };
+    const propertiesSectionsAddNew = () => {
+        Application.saveCurrentChartTimeline();
+    };
 </script>
 
 <Drawer class="app-properties" variant={Application.state.appLoaded ? "dismissible" : null} dir="rtl" bind:open={$Settings.propertiesOpen}>
     <Header dir="ltr">
         <Title>Properties</Title>
-        <Subtitle>Project</Subtitle>
+        <Subtitle>
+            {#if sectionsSelected}
+                Sections
+            {:else}
+                Project
+            {/if}
+        </Subtitle>
     </Header>
     <Content dir="ltr">
         {#if Application.state.appLoaded}
-            <Textfield style="width:100%" variant="filled"
-                bind:value={$SaveState.chart.song}
-                label="Audio file"
-            >{#snippet helper()}
-                <HelperText>Path to the audio file in your Unity project.</HelperText>
-            {/snippet}</Textfield>
-            <Textfield style="width:100%" variant="filled" type="number"
-                invalid={!MelodiiChart.isValidVersion($SaveState.chart.version)}
-                bind:value={$SaveState.chart.version}
-                label="Chart version"
-            >{#snippet helper()}
-                <HelperText>Update this number to reset player high-scores & ranks for this chart.</HelperText>
-            {/snippet}</Textfield>
-            <Textfield style="width:100%" variant="filled" type="number" disabled={true}
-                invalid={!MelodiiChart.isValidSampleRate($SaveState.chart.sampleRate)}
-                bind:value={$SaveState.chart.sampleRate}
-                label="Sample rate"
-            ></Textfield>
-            <Button style="width:100%" onclick={propertiesProjectConvertRate} touch variant="raised">
-                <Label>Convert Sample rate...</Label>
-            </Button>
+            {#if sectionsSelected}
+                <!-- Sections -->
+                <Button style="width:100%" touch variant="raised" onclick={propertiesSectionsAddNew}>
+                    <Label>Add new section at cursor</Label>
+                </Button>
+            {:else}
+                <!-- Project -->
+                <Textfield style="width:100%" variant="filled"
+                    bind:value={$SaveState.chart.song}
+                    label="Audio file"
+                >{#snippet helper()}
+                    <HelperText>Path to the audio file in your Unity project.</HelperText>
+                {/snippet}</Textfield>
+                <Textfield style="width:100%" variant="filled" type="number"
+                    invalid={!MelodiiChart.isValidVersion($SaveState.chart.version)}
+                    bind:value={$SaveState.chart.version}
+                    label="Chart version"
+                >{#snippet helper()}
+                    <HelperText>Update this number to reset player high-scores & ranks for this chart.</HelperText>
+                {/snippet}</Textfield>
+                <Textfield style="width:100%" variant="filled" type="number" disabled={true}
+                    invalid={!MelodiiChart.isValidSampleRate($SaveState.chart.sampleRate)}
+                    bind:value={$SaveState.chart.sampleRate}
+                    label="Sample rate"
+                ></Textfield>
+                <Button style="width:100%" touch variant="raised" onclick={propertiesProjectConvertRate}>
+                    <Label>Convert Sample rate...</Label>
+                </Button>
+            {/if}
         {/if}
     </Content>
 </Drawer>

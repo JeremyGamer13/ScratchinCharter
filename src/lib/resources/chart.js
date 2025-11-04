@@ -41,9 +41,17 @@ class MelodiiChart {
         // and it cannot be moved.
         // Each section starts at a specific sample time, and we need it in ms
         const keyframes = chart.sections.map(section => ({
-            val: (section.start / chart.sampleRate) * 1000
+            val: (section.start / chart.sampleRate) * 1000,
+            name: section.name,
+            samplesPerBeat: section.samplesPerBeat,
+            beatsPerMeasurement: section.beatsPerMeasurement,
         }));
-        if (!keyframes[0]) keyframes[0] = { val: 0 };
+        if (!keyframes[0]) keyframes[0] = {
+            val: 0,
+            name: this.defaultSection().name,
+            samplesPerBeat: this.defaultSection().samplesPerBeat,
+            beatsPerMeasurement: this.defaultSection().beatsPerMeasurement,
+        };
         // make the first keyframe not movable
         const firstKeyframe = keyframes[0];
         firstKeyframe.draggable = false;
@@ -57,8 +65,16 @@ class MelodiiChart {
         };
     }
     /** @param {import("animation-timeline-js").TimelineModel} model */
-    static parseTimelineForSections(model) {
-
+    static parseTimelineAsSections(model, sampleRate) {
+        if (model.rows.length > 1) throw new Error("Unexpected row count " + model.rows.length);
+        const timelineSections = model.rows[0];
+        return timelineSections.keyframes.map(keyframe => ({
+            ...(this.defaultSection()),
+            "name": keyframe.name,
+            "start": (keyframe.val / 1000) * sampleRate,
+            "samplesPerBeat": keyframe.samplesPerBeat,
+            "beatsPerMeasurement": keyframe.beatsPerMeasurement
+        }));
     }
 }
 
