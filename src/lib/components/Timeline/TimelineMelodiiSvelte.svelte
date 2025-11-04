@@ -21,6 +21,8 @@
         constructor(timelineInstance) {
             this.timelineInstance = timelineInstance;
 
+            this.selected = [];
+
             // listen for events
             // Prevent the first keyframe from being moved in sections mode
             this.timelineInstance.timeline.onKeyframeChanged((event) => {
@@ -30,14 +32,53 @@
                 event.preventDefault();
                 Application.loadChartIntoTimeline();
             });
+            // Save on drag finish
+            this.timelineInstance.timeline.onDragFinished((event) => {
+                this.applyChartChanges();
+            });
+        }
+
+        getAllKeyframesWithRows(model) {
+            if (!model) model = this.timelineInstance.timeline.getModel();
+            const allKeyframes = [];
+            for (const row of model.rows) {
+                for (const keyframe of row.keyframes) {
+                    keyframe._row = row.title;
+                    allKeyframes.push(keyframe);
+                }
+            }
+            return allKeyframes;
+        }
+        resolveKeyframe(keyframe, model) {
+            const allKeyframes = this.getAllKeyframesWithRows(model);
+            return allKeyframes.find(k => keyframe.val === k.val && keyframe._row === k._row);
+        }
+        resolveKeyframes(keyframes, model) {
+            return keyframes.map(keyframe => this.resolveKeyframe(keyframe, model))
+                .filter(keyframe => !!keyframe);
+        }
+        preserveSelected() {
+            this.selected = structuredClone(this.timelineInstance.timeline.getSelectedElements());
+        }
+        restoreSelected() {
+            // actually get all keyframes with their row attached
+            const allKeyframes = this.getAllKeyframesWithRows();
+            // map each of the selected elements to one of the keyframes
+            const selectedKeyframes = this.selected.map(keyframe => allKeyframes.find(k => keyframe.val === k.val && keyframe.row.title === k._row))
+                .filter(keyframe => !!keyframe);
+            this.timelineInstance.timeline.select(selectedKeyframes, this.timelineInstance.library.TimelineSelectionMode.Normal);
         }
 
         applyChartChanges() {
+            this.preserveSelected();
             Application.saveCurrentChartTimeline();
+            this.restoreSelected();
         }
         reloadChart() {
+            this.preserveSelected();
             Application.validateChart();
             Application.loadChartIntoTimeline();
+            this.restoreSelected();
         }
 
         removeSelectedKeyframes() {
@@ -50,7 +91,6 @@
 
             // re-read from timeline & reload
             this.applyChartChanges();
-            this.reloadChart();
         }
 
         addSectionAtCursor() {

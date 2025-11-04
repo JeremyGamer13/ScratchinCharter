@@ -69,14 +69,17 @@ class MelodiiChart {
         // we can mostly map each section to a keyframe easily,
         // but we need 1 keyframe at the very beginning
         // and it cannot be moved.
+        const rowTitle = "Sections";
         // Each section starts at a specific sample time, and we need it in ms
         const keyframes = chart.sections.map(section => ({
+            _row: rowTitle,
             val: (section.start / chart.sampleRate) * 1000,
             name: section.name,
             samplesPerBeat: section.samplesPerBeat,
             beatsPerMeasurement: section.beatsPerMeasurement,
         }));
         if (!keyframes[0]) keyframes[0] = {
+            _row: rowTitle,
             val: 0,
             name: this.defaultSection().name,
             samplesPerBeat: this.defaultSection().samplesPerBeat,
@@ -89,7 +92,7 @@ class MelodiiChart {
         return {
             rows: [
                 {
-                    title: "Sections",
+                    title: rowTitle,
                     keyframes,
                 },
             ],

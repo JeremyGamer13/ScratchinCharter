@@ -120,13 +120,14 @@
         library = await TimelineLibrary();
         timeline = new library.Timeline({ id: container });
         instance.container = container;
+        instance.library = library;
         instance.timeline = timeline;
         instance.reactive = TimelineReactive;
         createOutlineAttachments();
         TimelineReactive.rerenderOutline();
         createEventListeners();
         instance.created = true;
-
+        
         TimelineState.editors[id] = instance;
         if (props.onload) props.onload(instance);
     });
