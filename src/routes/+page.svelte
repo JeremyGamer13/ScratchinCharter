@@ -76,7 +76,6 @@
         if (!componentsHasLoaded.timeline) return;
         // add all the components
         Application.state.timingPreview = waveSurfer;
-        console.log(timeline);
         Application.state.timeline = timeline;
         componentsHasLoaded.app = true;
         

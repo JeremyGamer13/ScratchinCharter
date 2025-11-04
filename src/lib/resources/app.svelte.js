@@ -28,7 +28,6 @@ class Application {
         if (state.timeline) return;
         if (state.timelineMode === "sections") {
             const timelineModel = MelodiiChart.getTimelineForSections();
-            console.log(state.timeline);
             state.timeline.timeline.setModel(timelineModel);
         }
         state.timeline.rerenderOutline();
@@ -44,7 +43,6 @@ class Application {
         updateStore(SaveStateLarge, (state) => { state.song = arrayBuffer });
     };
     static async importChartFromObject(object) {
-        if (state.timeline && state.timelineMode == "sections") state.timeline = ""
         updateStore(SaveState, (state) => { state.chart = object; });
     };
     static async importChartFromString(jsonStr) {
