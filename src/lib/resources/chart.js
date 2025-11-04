@@ -49,7 +49,10 @@ class MelodiiChart {
 
         // fix sections, sort and remove duplicate timings
         fixedChart.sections.sort((a, b) => a.start - b.start);
-        fixedChart.sections = fixedChart.sections.map(section => {
+        fixedChart.sections = fixedChart.sections.map((section, i) => {
+            // first section HAS to start at 0
+            if (i === 0) section.start = 0;
+
             if (!this.isValidSampleRate(section.samplesPerBeat))
                 section.samplesPerBeat = Math.trunc(Number(section.samplesPerBeat));
             if (!this.isValidSampleRate(section.samplesPerBeat))
@@ -79,9 +82,10 @@ class MelodiiChart {
             samplesPerBeat: this.defaultSection().samplesPerBeat,
             beatsPerMeasurement: this.defaultSection().beatsPerMeasurement,
         };
-        // make the first keyframe not movable
+        // make the first keyframe not touchable
         const firstKeyframe = keyframes[0];
         firstKeyframe.draggable = false;
+        firstKeyframe.deletable = false; // not in the api but we handle deletion so
         return {
             rows: [
                 {

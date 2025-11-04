@@ -2,7 +2,7 @@
 	"name": "scratchin-charter",
 	"version": "1.0.0",
 	"type": "module",
-    "license": "MIT",
+	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -58,6 +58,7 @@
 	"dependencies": {
 		"@monaco-editor/loader": "^1.6.1",
 		"animation-timeline-js": "^2.3.5",
+		"events": "^3.3.0",
 		"localforage": "^1.10.0",
 		"wavesurfer.js": "^7.11.1"
 	}

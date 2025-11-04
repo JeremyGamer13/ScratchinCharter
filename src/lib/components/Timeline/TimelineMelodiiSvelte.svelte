@@ -1,0 +1,83 @@
+<script>
+    import { page } from "$app/state";
+    import * as stores from 'svelte/store';
+    import { browser } from "$app/environment";
+    import { onMount, onDestroy } from "svelte";
+    
+    import Application from "$lib/resources/app.svelte";
+    import Settings from "$lib/stores/settings";
+    import SaveState from "$lib/stores/state";
+    import SaveStateLarge from "$lib/stores/state-large";
+    import SMUIPrompts from '$lib/resources/smui-prompts';
+    import MelodiiChart from "$lib/resources/chart";
+    import TimelineState from "$lib/state/timeline.svelte.js";
+    
+    import TimelineMelodiiCreator from "$lib/components/Timeline/TimelineMelodii.svelte.js";
+
+    // The purpose of this file is to centralize all Melodii + Timeline actions,
+    // while also keeping Svelte reactivity & syntax possible.
+    // This file is only meant to be imported on the main route page.
+    class TimelineMelodii {
+        constructor(timelineInstance) {
+            this.timelineInstance = timelineInstance;
+
+            // listen for events
+            // Prevent the first keyframe from being moved in sections mode
+            this.timelineInstance.timeline.onKeyframeChanged((event) => {
+                if (event.source !== "user") return;
+                if (Application.state.timelineMode !== "sections") return;
+                if (event.target.prevVal !== 0) return;
+                event.preventDefault();
+                Application.loadChartIntoTimeline();
+            });
+        }
+
+        applyChartChanges() {
+            Application.saveCurrentChartTimeline();
+        }
+        reloadChart() {
+            Application.validateChart();
+            Application.loadChartIntoTimeline();
+        }
+
+        removeSelectedKeyframes() {
+            // remove the selected keyframes from the model
+            const model = this.timelineInstance.timeline.getModel();
+            for (const row of model.rows) {
+                row.keyframes = row.keyframes.filter((p) => !p.selected || p.deletable === false);
+            }
+            this.timelineInstance.timeline.setModel(model);
+
+            // re-read from timeline & reload
+            this.applyChartChanges();
+            this.reloadChart();
+        }
+
+        addSectionAtCursor() {
+            this.applyChartChanges();
+            const chart = $SaveState.chart;
+            const cursorTime = Application.state.timeline.timeline.getTime();
+            const sampleTime = (cursorTime / 1000) * chart.sampleRate;
+            const newSection = MelodiiChart.defaultSection();
+            newSection.start = sampleTime;
+
+            // Copy the last section's timing info
+            const previousSections = chart.sections.filter(section => section.start <= sampleTime);
+            const previousSection = previousSections[0] ? previousSections[previousSections.length - 1] : null;
+            if (previousSection) {
+                newSection.samplesPerBeat = previousSection.samplesPerBeat;
+                newSection.beatsPerMeasurement = previousSection.beatsPerMeasurement;
+            }
+
+            // Update chart
+            chart.sections.push(newSection);
+            this.reloadChart();
+        }
+    }
+
+    TimelineMelodiiCreator.create = (timelineInstance) => {
+        return new TimelineMelodii(timelineInstance);
+    };
+</script>
+
+<div style="display: none;"></div>

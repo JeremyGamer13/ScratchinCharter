@@ -15,12 +15,14 @@
     import SMUIPrompts from "$lib/resources/smui-prompts";
     import WaveSurferState from "$lib/state/wavesurfer.svelte.js";
     import MelodiiChart from "$lib/resources/chart";
+    import TimelineMelodiiCreator from "$lib/components/Timeline/TimelineMelodii.svelte.js";
 
     // Components
     import TopBar from "$lib/components/TopBar/TopBar.svelte";
     import Properties from "$lib/components/Properties/Properties.svelte";
     import WaveSurferComponent from "$lib/components/WaveSurfer.svelte";
     import Timeline from "$lib/components/Timeline/Timeline.svelte";
+    import TimelineMelodiiSvelte from "$lib/components/Timeline/TimelineMelodiiSvelte.svelte";
     
     let appTopBar = $state(null);
     
@@ -56,6 +58,17 @@
             timeline.timeline.setTime(newTime * 1000);
         }
     };
+    const timelineListenForEvents = () => {
+        timeline.reactive.events.on("add-keyframe", () => {
+            if (Application.state.timelineMode === "sections") {
+                Application.state.timeline.melodii.addSectionAtCursor();
+            }
+        });
+        timeline.reactive.events.on("remove-keyframes", () => {
+            Application.state.timeline.melodii.removeSelectedKeyframes();
+        });
+    };
+
     const editorsAttachEachother = () => {
         waveSurfer.on("timeupdate", timelineGetsSurferUpdate);
         waveSurfer.on("seek", timelineGetsSurferUpdate);
@@ -100,6 +113,7 @@
         Application.state.timingPreview = waveSurfer;
         Application.state.timeline = timeline;
         editorsAttachEachother();
+        timelineListenForEvents();
         componentsHasLoaded.app = true;
         
         // Only interrupt reading if we need to create a new project.
@@ -151,10 +165,12 @@
                     id="timeline-main"
                     onload={(instance) => {
                         timeline = instance;
+                        timeline.melodii = TimelineMelodiiCreator.create(timeline);
                         componentsHasLoaded.timeline = true;
                         componentLoaded();
                     }}
                 />
+                <TimelineMelodiiSvelte />
             </div>
         </AppContent>
     </div>

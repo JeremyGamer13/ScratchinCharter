@@ -4,6 +4,8 @@
     import { browser } from "$app/environment";
     import { onMount, onDestroy } from "svelte";
     
+    import { EventEmitter } from "events";
+    import Tooltip, { Wrapper } from '@smui/tooltip';
     import Button, { Label } from '@smui/button';
     import Fab, { Icon } from '@smui/fab';
     
@@ -17,6 +19,8 @@
     let outlineContainer = null;
     let outlineScrollContainer = null;
 
+    /** @type {import("animation-timeline-js")} */
+    let library = null;
     /** @type {import("animation-timeline-js").Timeline} */
     let timeline = $state(null);
     /** @type {import("animation-timeline-js").TimelineOptions} */
@@ -24,6 +28,11 @@
     /** @type {import("animation-timeline-js").TimelineRow[]} */
     let rows = $state([]);
     let selectedRow = $state("");
+    let selectedRowLast = $state("");
+    /** @type {import("animation-timeline-js").TimelineKeyframe[]} */
+    let selectedKeyframes = $state([]);
+
+    let addTypeLabel = $state("section");
     
     const id = props.id ?? `timeline${Date.now()}${Math.random()}${Math.random()}${Math.random()}${Math.random()}`;
     const instance = { id, created: false };
@@ -68,7 +77,25 @@
         }
         static set selectedRow(value) {
             selectedRow = value;
+            if (value !== "") selectedRowLast = value;
         }
+        static get selectedKeyframes() {
+            return selectedKeyframes;
+        }
+        static set selectedKeyframes(value) {
+            selectedKeyframes = value;
+            timeline.select(value, library.TimelineSelectionMode.Normal);
+        }
+
+        static get addTypeLabel() {
+            return addTypeLabel;
+        }
+        static set addTypeLabel(value) {
+            addTypeLabel = value;
+        }
+
+        static events = new EventEmitter();
+
         static rerenderOutline() {
             if (!instance.created) return;
             const model = timeline.getModel();
@@ -83,16 +110,21 @@
             rows.push(...model.rows);
         };
     }
-
+    const createEventListeners = () => {
+        timeline.onSelected((event) => {
+            selectedKeyframes = event.selected;
+        });
+    };
     onMount(async () => {
         if (instance.created) return;
-        const library = await TimelineLibrary();
+        library = await TimelineLibrary();
         timeline = new library.Timeline({ id: container });
         instance.container = container;
         instance.timeline = timeline;
         instance.reactive = TimelineReactive;
         createOutlineAttachments();
         TimelineReactive.rerenderOutline();
+        createEventListeners();
         instance.created = true;
 
         TimelineState.editors[id] = instance;
@@ -105,22 +137,29 @@
 </script>
 
 <div class="timeline-toolbar">
-    <Fab color="primary" onclick={() => timeline?.setInteractionMode("selection")}>
-        <Icon class="material-icons">touch_app</Icon>
-    </Fab>
-    <Fab color="primary" onclick={() => timeline?.setInteractionMode("zoom")}>
-        <Icon class="material-icons">pageview</Icon>
-    </Fab>
-    <Fab color="primary" onclick={() => timeline?.setInteractionMode("nonInteractivePan")}>
-        <Icon class="material-icons">swipe</Icon>
-    </Fab>
+    <Wrapper><Fab color="primary" onclick={() => timeline?.setInteractionMode("selection")}>
+        <Icon class="material-symbols">arrow_selector_tool</Icon>
+    </Fab><Tooltip>Select tool</Tooltip></Wrapper>
+    <Wrapper><Fab color="primary" onclick={() => timeline?.setInteractionMode("zoom")}>
+        <Icon class="material-symbols">search</Icon>
+    </Fab><Tooltip>Zoom tool (Ctrl + Click to zoom out)</Tooltip></Wrapper>
+    <Wrapper><Fab color="primary" onclick={() => timeline?.setInteractionMode("nonInteractivePan")}>
+        <Icon class="material-symbols">pan_tool</Icon>
+    </Fab><Tooltip>Pan tool (drag on timeline to scroll)</Tooltip></Wrapper>
     <div style="width:24px;"></div>
-    <Fab color="primary" onclick={() => timeline?.zoomOut()}>
-        <Icon class="material-icons">zoom_in</Icon>
-    </Fab>
-    <Fab color="primary" onclick={() => timeline?.zoomIn()}>
-        <Icon class="material-icons">zoom_out</Icon>
-    </Fab>
+    <Wrapper><Fab color="primary" onclick={() => timeline?.zoomOut()}>
+        <Icon class="material-symbols">zoom_in</Icon>
+    </Fab><Tooltip>Zoom in to timeline</Tooltip></Wrapper>
+    <Wrapper><Fab color="primary" onclick={() => timeline?.zoomIn()}>
+        <Icon class="material-symbols">zoom_out</Icon>
+    </Fab><Tooltip>Zoom out of timeline</Tooltip></Wrapper>
+    <div style="width:24px;"></div>
+    <Wrapper><Fab color="secondary" onclick={() => TimelineReactive.events.emit("add-keyframe")}>
+        <Icon class="material-symbols">add_diamond</Icon>
+    </Fab><Tooltip>Add {addTypeLabel} at timeline cursor</Tooltip></Wrapper>
+    <Wrapper><Fab color="secondary" onclick={() => TimelineReactive.events.emit("remove-keyframes")}>
+        <Icon class="material-symbols">delete</Icon>
+    </Fab><Tooltip>Remove {addTypeLabel}(s)</Tooltip></Wrapper>
 </div>
 <div class="timeline-container">
     <!-- TODO: remedy with a button in properties to deselect -->
@@ -136,7 +175,7 @@
                             id={`timeline-outlinebutton${id}${row.title}`}
                             class="outline-node"
                             variant={row.title === selectedRow ? "unelevated" : null}
-                            onclick={() => { selectedRow = row.title; }}
+                            onclick={() => { selectedRow = row.title; selectedRowLast = row.title; }}
                             style={`justify-content: flex-start;`
                                 + `max-height:${(row.style ? row.style.height : 0) || (outlineTimelineOptions.rowsStyle ? outlineTimelineOptions.rowsStyle.height : 0)}px;`
                                 + `min-height:${(row.style ? row.style.height : 0) || (outlineTimelineOptions.rowsStyle ? outlineTimelineOptions.rowsStyle.height : 0)}px;`

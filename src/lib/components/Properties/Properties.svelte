@@ -21,6 +21,9 @@
     let sectionsSelected = $derived(Application.state.timelineMode === "sections" ?
         Application.state.timeline && Application.state.timeline.reactive.selectedRow === "Sections"
         : false);
+    let sectionSelected = $derived(Application.state.timelineMode === "sections" ?
+        Application.state.timeline && Application.state.timeline.reactive.selectedKeyframes.length > 0
+        : false);
 
     const propertiesProjectConvertRate = async () => {
         const doConvert = await SMUIPrompts.confirm("Are you sure you want to change the Sample rate of your chart?"
@@ -55,27 +58,17 @@
         // TODO: this
         throw new Error("Not implemented");
     };
+    const propertiesSectionsSelectFirst = () => {
+        const model = Application.state.timeline.timeline.getModel();
+        if (!model) return;
+        const row = model.rows[0];
+        if (!row) return;
+        const keyframe = row.keyframes[0];
+        if (!keyframe) return;
+        Application.state.timeline.reactive.selectedKeyframes = [keyframe];
+    };
     const propertiesSectionsAddNew = () => {
-        Application.saveCurrentChartTimeline();
-
-        const chart = $SaveState.chart;
-        const cursorTime = Application.state.timeline.timeline.getTime();
-        const sampleTime = (cursorTime / 1000) * chart.sampleRate;
-        const newSection = MelodiiChart.defaultSection();
-        newSection.start = sampleTime;
-
-        // Copy the last section's timing info
-        const previousSections = chart.sections.filter(section => section.start <= sampleTime);
-        const previousSection = previousSections[0] ? previousSections[previousSections.length - 1] : null;
-        if (previousSection) {
-            newSection.samplesPerBeat = previousSection.samplesPerBeat;
-            newSection.beatsPerMeasurement = previousSection.beatsPerMeasurement;
-        }
-
-        // Update chart, validate & reload
-        chart.sections.push(newSection);
-        Application.validateChart();
-        Application.loadChartIntoTimeline();
+        Application.state.timeline.melodii.addSectionAtCursor();
     };
 </script>
 
@@ -83,7 +76,9 @@
     <Header dir="ltr">
         <Title>Properties</Title>
         <Subtitle>
-            {#if sectionsSelected}
+            {#if sectionSelected}
+                Section ({Application.state.timeline.reactive.selectedKeyframes.length})
+            {:else if sectionsSelected}
                 Sections
             {:else}
                 Project
@@ -92,8 +87,28 @@
     </Header>
     <Content dir="ltr">
         {#if Application.state.appLoaded}
-            {#if sectionsSelected}
+            {#if sectionSelected}
+                <!-- Section -->
+                 
+            {:else if sectionsSelected}
                 <!-- Sections -->
+                <p>
+                    Each section marks a shift in the song.
+                    <br>
+                    You can change BPM at any section, and also how many
+                    beats are in a measurement.
+                    <br>
+                    <br>
+                    You can also name each section for organization.
+                    <br>
+                    <br>
+                    The first section is required.
+                </p>
+                <hr>
+                <Button style="width:100%" touch variant="raised" onclick={propertiesSectionsSelectFirst}>
+                    <Label>Select first section</Label>
+                </Button>
+                <hr>
                 <Button style="width:100%" touch variant="raised" onclick={propertiesSectionsAddNew}>
                     <Label>Add new section at cursor</Label>
                 </Button>

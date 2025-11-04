@@ -107,7 +107,7 @@
     >
         <Header>
             <Title id={`${dialog.id}title`}>{dialog.title}</Title >
-            <IconButton action="close" class="material-icons" onclick={() => dialog.onsubmit()}>close</IconButton>
+            <IconButton action="close" class="material-symbols" onclick={() => dialog.onsubmit()}>close</IconButton>
         </Header>
         <Content id={`${dialog.id}content`}>
             {#if dialog.content}

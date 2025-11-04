@@ -31,7 +31,7 @@
             <MenuHelp {appTopBar}></MenuHelp>
         </Section>
         <Section align="end">
-            <IconButton class="material-icons" onclick={() => { $Settings.propertiesOpen = !$Settings.propertiesOpen }}>menu</IconButton>
+            <IconButton class="material-symbols" onclick={() => { $Settings.propertiesOpen = !$Settings.propertiesOpen }}>menu</IconButton>
         </Section>
     </Row>
 </TopAppBar>
