@@ -8,13 +8,49 @@
     } from '@smui/drawer';
     import Textfield from '@smui/textfield';
     import Icon from '@smui/textfield/icon';
+    import Button, { Label } from '@smui/button';
     import HelperText from '@smui/textfield/helper-text';
     
     import Application from "$lib/resources/app.svelte";
     import Settings from "$lib/stores/settings";
     import SaveState from "$lib/stores/state";
     import SaveStateLarge from "$lib/stores/state-large";
+    import SMUIPrompts from '$lib/resources/smui-prompts';
     import MelodiiChart from "$lib/resources/chart";
+
+    const propertiesProjectConvertRate = async () => {
+        const doConvert = await SMUIPrompts.confirm("Are you sure you want to change the Sample rate of your chart?"
+            + "\n"
+            + "\n" + "This will be difficult to undo. It's recommended to make a backup of your current chart."
+            + "\n" + " - All sections will be re-aligned to the new sample rate."
+            + "\n" + " - All notes will be re-aligned to the new sample rate."
+            + "\n" + " - Notes at the beginning/end of sections may bleed into other sections."
+            + "\n" + " - Some notes may be slightly inaccurate due to rounding errors.");
+        if (!doConvert) return;
+
+        let sampleRate = null;
+        while (!sampleRate) {
+            sampleRate = Number(await SMUIPrompts.prompt(`Please enter the new Sample rate (Hz).`
+                + `\n` + ` - It is recommended to use something like Audacity to find the Sample rate (but make sure you do not use the Project rate.)`
+                + `\n` + ` - This number cannot be changed later without conversion, which can cause inaccurate timing or buggy behavior.`
+                + `\n` + ` - You can convert other audio files to this Sample rate, but that can reduce audio quality in some cases.`
+                , 44100));
+            if (sampleRate && !MelodiiChart.isValidSampleRate(sampleRate)) {
+                sampleRate = null;
+                await SMUIPrompts.alert(`That is not a valid Sample rate.`
+                    + `\n` + ` - Only enter the Sample rate with numbers.`
+                    + `\n` + ` - Make sure the Sample rate is in Hz. (Hertz)`
+                    + `\n` + ` - Make sure you did not enter other values, like Bit rate.`
+                    + `\n` + ` - The Sample rate must be an integer, and be non-negative.`
+                    + `\n`
+                    + `\n` + `Let's try that again.`);
+            }
+        }
+        if (!sampleRate) return;
+
+        // TODO: this
+        throw new Error("Not implemented");
+    };
 </script>
 
 <Drawer class="app-properties" variant={Application.state.appLoaded ? "dismissible" : null} dir="rtl" bind:open={$Settings.propertiesOpen}>
@@ -31,19 +67,20 @@
                 <HelperText>Path to the audio file in your Unity project.</HelperText>
             {/snippet}</Textfield>
             <Textfield style="width:100%" variant="filled" type="number"
-                invalid={!MelodiiChart.isValidSampleRate($SaveState.chart.sampleRate)}
-                bind:value={$SaveState.chart.sampleRate}
-                label="Sample rate"
-            >{#snippet helper()}
-                <HelperText>Sample rate of your song file.</HelperText>
-            {/snippet}</Textfield>
-            <Textfield style="width:100%" variant="filled" type="number"
                 invalid={!MelodiiChart.isValidVersion($SaveState.chart.version)}
                 bind:value={$SaveState.chart.version}
                 label="Chart version"
             >{#snippet helper()}
                 <HelperText>Update this number to reset player high-scores & ranks for this chart.</HelperText>
             {/snippet}</Textfield>
+            <Textfield style="width:100%" variant="filled" type="number" disabled={true}
+                invalid={!MelodiiChart.isValidSampleRate($SaveState.chart.sampleRate)}
+                bind:value={$SaveState.chart.sampleRate}
+                label="Sample rate"
+            ></Textfield>
+            <Button style="width:100%" onclick={propertiesProjectConvertRate} touch variant="raised">
+                <Label>Convert Sample rate...</Label>
+            </Button>
         {/if}
     </Content>
 </Drawer>

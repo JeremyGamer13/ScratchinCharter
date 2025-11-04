@@ -141,6 +141,7 @@ class Application {
         if (!state.timingPreview) return;
         const audioUrl = URL.createObjectURL(blob);
         await state.timingPreview.load(audioUrl);
+        state.timingPreview.zoom(0);
 
         // remember the last loaded song
         const arrayBuffer = await blob.arrayBuffer();
