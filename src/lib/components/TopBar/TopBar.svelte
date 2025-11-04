@@ -15,6 +15,7 @@
     // Components
     import MenuFile from "$lib/components/TopBar/MenuFile.svelte";
     import MenuEdit from "$lib/components/TopBar/MenuEdit.svelte";
+    import MenuHelp from "$lib/components/TopBar/MenuHelp.svelte";
 
     let appTopBar = $state(null);
     $effect(() => {
@@ -27,6 +28,7 @@
         <Section>
             <MenuFile {appTopBar}></MenuFile>
             <MenuEdit {appTopBar}></MenuEdit>
+            <MenuHelp {appTopBar}></MenuHelp>
         </Section>
         <Section align="end">
             <IconButton class="material-icons" onclick={() => { $Settings.propertiesOpen = !$Settings.propertiesOpen }}>menu</IconButton>
