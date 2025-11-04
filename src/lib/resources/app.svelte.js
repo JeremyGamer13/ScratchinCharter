@@ -32,7 +32,7 @@ class Application {
             const timelineModel = MelodiiChart.getTimelineForSections(chart);
             state.timeline.timeline.setModel(timelineModel);
         }
-        state.timeline.rerenderOutline();
+        state.timeline.reactive.rerenderOutline();
     }
 
     static async importSongFromBlob(blob) {

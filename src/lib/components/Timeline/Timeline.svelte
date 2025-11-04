@@ -4,6 +4,7 @@
     import { browser } from "$app/environment";
     import { onMount, onDestroy } from "svelte";
     
+    import Button, { Label } from '@smui/button';
     import Fab, { Icon } from '@smui/fab';
     
     import TimelineLibrary from "$lib/components/Timeline/TimelineLibrary.js";
@@ -11,6 +12,7 @@
     
     let props = $props();
     let container = null;
+    let outline = null;
     let outlineHeader = null;
     let outlineContainer = null;
     let outlineScrollContainer = null;
@@ -21,6 +23,7 @@
     let outlineTimelineOptions = $state(null);
     /** @type {import("animation-timeline-js").TimelineRow[]} */
     let rows = $state([]);
+    let selectedRow = $state("");
     
     const id = props.id ?? `timeline${Date.now()}${Math.random()}${Math.random()}${Math.random()}${Math.random()}`;
     const instance = { id, created: false };
@@ -35,31 +38,61 @@
             outlineScrollContainer.scrollTop = event.scrollTop;
         });
     };
-    const rerenderOutline = () => {
-        if (!instance.created) return;
-        const model = timeline.getModel();
-        if (!model) return;
-        const options = timeline.getOptions();
-        if (!options) return;
-        
-        outlineTimelineOptions = options;
-        outlineHeader.style.maxHeight = outlineHeader.style.minHeight = options.headerHeight + 'px';
-
-        rows.splice(0, rows.length);
-        rows.push(...model.rows);
-    };
     const outlineScrolled = (event) => {
         timeline?._handleWheelEvent(event);
     };
+    const outlineCheckButtonClicked = (clickedElement) => {
+        for (const row of rows) {
+            if (!row) continue;
+            const buttonId = `timeline-outlinebutton${id}${row.title}`;
+            const button = document.getElementById(buttonId);
+            if (!button) continue;
+            if (button.contains(event.target) || event.target === button) {
+                return button;
+            }
+        }
+        return null;
+    };
+    const outlineTryDeselectRow = (event) => {
+        if (!outline) return;
+        if (!outline.contains(event.target)) return;
+        // if no button was clicked then we should deselect any row selected
+        if (!outlineCheckButtonClicked(event.target)) {
+            selectedRow = "";
+        }
+    };
+
+    class TimelineReactive {
+        static get selectedRow() {
+            return selectedRow;
+        }
+        static set selectedRow(value) {
+            selectedRow = value;
+        }
+        static rerenderOutline() {
+            if (!instance.created) return;
+            const model = timeline.getModel();
+            if (!model) return;
+            const options = timeline.getOptions();
+            if (!options) return;
+            
+            outlineTimelineOptions = options;
+            outlineHeader.style.maxHeight = outlineHeader.style.minHeight = options.headerHeight + 'px';
+
+            rows.splice(0, rows.length);
+            rows.push(...model.rows);
+        };
+    }
+
     onMount(async () => {
         if (instance.created) return;
         const library = await TimelineLibrary();
         timeline = new library.Timeline({ id: container });
         instance.container = container;
         instance.timeline = timeline;
-        instance.rerenderOutline = rerenderOutline;
+        instance.reactive = TimelineReactive;
         createOutlineAttachments();
-        rerenderOutline();
+        TimelineReactive.rerenderOutline();
         instance.created = true;
 
         TimelineState.editors[id] = instance;
@@ -90,20 +123,26 @@
     </Fab>
 </div>
 <div class="timeline-container">
-    <div class="outline">
-        <div class="outline-header" id="outline-header" bind:this={outlineHeader}></div>
+    <!-- TODO: remedy with a button in properties to deselect -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="outline" bind:this={outline} onclick={outlineTryDeselectRow}>
+        <div class="outline-header" bind:this={outlineHeader}></div>
         <div class="outline-scroll-container" bind:this={outlineScrollContainer} onmousewheel={outlineScrolled}>
             <div class="outline-items" bind:this={outlineContainer}>
                 {#if timeline && outlineTimelineOptions}
                     {#each rows as row, index}
-                        <div
+                        <Button
+                            id={`timeline-outlinebutton${id}${row.title}`}
                             class="outline-node"
-                            style={`max-height:${(row.style ? row.style.height : 0) || (outlineTimelineOptions.rowsStyle ? outlineTimelineOptions.rowsStyle.height : 0)}px;`
+                            variant={row.title === selectedRow ? "unelevated" : null}
+                            onclick={() => { selectedRow = row.title; }}
+                            style={`justify-content: flex-start;max-height:${(row.style ? row.style.height : 0) || (outlineTimelineOptions.rowsStyle ? outlineTimelineOptions.rowsStyle.height : 0)}px;`
                                 + `min-height:${(row.style ? row.style.height : 0) || (outlineTimelineOptions.rowsStyle ? outlineTimelineOptions.rowsStyle.height : 0)}px;`
                                 + `margin-bottom:${((outlineTimelineOptions.rowsStyle ? outlineTimelineOptions.rowsStyle.marginBottom : 0) || 0)}px;`}
                         >
-                            {row.title || "Track " + index}
-                        </div>
+                            <Label>{row.title || "Track " + index}</Label>
+                        </Button>
                     {/each}
                 {/if}
             </div>
@@ -155,7 +194,7 @@
         overflow-x: hidden;
         overflow-y: hidden;
     }
-    .outline-node {
+    .outline :global(.outline-node) {
         width: 100%;
         height: 30px;
         padding-left: 20px;
@@ -167,8 +206,5 @@
         color: white;
         
         user-select: none;
-    }
-    .outline-node:hover {
-        background-color: #3399ff;
     }
 </style>
