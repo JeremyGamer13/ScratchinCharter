@@ -39,8 +39,9 @@ class MelodiiChart {
         // we can mostly map each section to a keyframe easily,
         // but we need 1 keyframe at the very beginning
         // and it cannot be moved.
+        // Each section starts at a specific sample time, and we need it in ms
         const keyframes = chart.sections.map(section => ({
-            val: section.start
+            val: (section.start / chart.sampleRate) * 1000
         }));
         if (!keyframes[0]) keyframes[0] = { val: 0 };
         // make the first keyframe not movable
