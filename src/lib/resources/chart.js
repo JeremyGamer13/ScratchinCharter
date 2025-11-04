@@ -1,3 +1,5 @@
+import TimelineLibrary from "$lib/components/Timeline/TimelineLibrary.js";
+
 class MelodiiChart {
     static defaultChart() {
         return {
@@ -29,6 +31,23 @@ class MelodiiChart {
     static isValidEventId(eventId) {
         // arbitrary but probably a good idea
         return (/[a-zA-Z0-9\-\_]/gi).test(eventId);
+    }
+
+    /** @returns {import("animation-timeline-js").TimelineModel} */
+    static getTimelineForSections() {
+        const keyframes = [];
+        return {
+            rows: [
+                {
+                    title: "Sections",
+                    keyframes,
+                },
+            ],
+        };
+    }
+    /** @param {import("animation-timeline-js").TimelineModel} model */
+    static parseTimelineForSections(model) {
+
     }
 }
 

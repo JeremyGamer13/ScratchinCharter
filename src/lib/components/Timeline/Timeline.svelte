@@ -4,7 +4,7 @@
     import { browser } from "$app/environment";
     import { onMount, onDestroy } from "svelte";
     
-    import IconButton from '@smui/icon-button';
+    import Fab, { Icon } from '@smui/fab';
     
     import TimelineLibrary from "$lib/components/Timeline/TimelineLibrary.js";
     import TimelineState from "$lib/state/timeline.svelte.js";
@@ -72,7 +72,22 @@
 </script>
 
 <div class="timeline-toolbar">
-    <IconButton class="material-icons">build</IconButton>
+    <Fab color="primary" onclick={() => timeline?.setInteractionMode("selection")}>
+        <Icon class="material-icons">touch_app</Icon>
+    </Fab>
+    <Fab color="primary" onclick={() => timeline?.setInteractionMode("zoom")}>
+        <Icon class="material-icons">pageview</Icon>
+    </Fab>
+    <Fab color="primary" onclick={() => timeline?.setInteractionMode("nonInteractivePan")}>
+        <Icon class="material-icons">swipe</Icon>
+    </Fab>
+    <div style="width:24px;"></div>
+    <Fab color="primary" onclick={() => timeline?.zoomOut()}>
+        <Icon class="material-icons">zoom_in</Icon>
+    </Fab>
+    <Fab color="primary" onclick={() => timeline?.zoomIn()}>
+        <Icon class="material-icons">zoom_out</Icon>
+    </Fab>
 </div>
 <div class="timeline-container">
     <div class="outline">
@@ -94,22 +109,28 @@
             </div>
         </div>
     </div>
-    <div style="width: 100%;height: 100%;" {id} bind:this={container}></div>
+    <div style="width: calc(100% - 250px);height: 100%;" {id} bind:this={container}></div>
 </div>
 
 <style>
     .timeline-toolbar {
         position: relative;
-        height: 48px;
+        height: 64px;
+        padding: 4px;
         
         display: flex;
+        flex-direction: row;
+        align-items: center;
 
         background-color: #383838;
         overflow: hidden;
     }
+    .timeline-toolbar > :global(*) {
+        margin-right: 8px;
+    }
     .timeline-container {
         width: 100%;
-        height: calc(100% - 48px);
+        height: calc(100% - 64px);
 
         display: flex;
         flex-direction: row;
@@ -117,7 +138,6 @@
 
     .outline {
         width: 250px;
-        min-width: 150px;
         height: 100%;
         
         display: flex;

@@ -16,10 +16,23 @@ const state = $state({
     /** @type {import("wavesurfer.js").default} */
     clipPreview: null,
     timeline: null,
+
+    /** @type {"sections"|"section"} */
+    timelineMode: "sections",
 });
 
 class Application {
     static state = state;
+
+    static loadChartIntoTimeline() {
+        if (state.timeline) return;
+        if (state.timelineMode === "sections") {
+            const timelineModel = MelodiiChart.getTimelineForSections();
+            console.log(state.timeline);
+            state.timeline.timeline.setModel(timelineModel);
+        }
+        state.timeline.rerenderOutline();
+    }
 
     static async importSongFromBlob(blob) {
         if (!state.timingPreview) return;
@@ -31,6 +44,7 @@ class Application {
         updateStore(SaveStateLarge, (state) => { state.song = arrayBuffer });
     };
     static async importChartFromObject(object) {
+        if (state.timeline && state.timelineMode == "sections") state.timeline = ""
         updateStore(SaveState, (state) => { state.chart = object; });
     };
     static async importChartFromString(jsonStr) {

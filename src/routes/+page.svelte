@@ -50,6 +50,7 @@
     const appReadSaveState = async () => {
         const chart = $SaveState.chart || MelodiiChart.defaultChart();
         await Application.importChartFromObject(chart);
+        await Application.loadChartIntoTimeline();
     };
     const appReadSaveStateLarge = async () => {
         const song = $SaveStateLarge.song;
@@ -75,6 +76,7 @@
         if (!componentsHasLoaded.timeline) return;
         // add all the components
         Application.state.timingPreview = waveSurfer;
+        console.log(timeline);
         Application.state.timeline = timeline;
         componentsHasLoaded.app = true;
         
