@@ -21,6 +21,10 @@
             + `\n` + `hperrin - svelte-material-ui`
             + `\n` + `katspaugh - wavesurfer.js`
             + `\n` + `ievgennaida - animation-timeline-control`
+            + `\n` + `localForage - localForage`
+            + `\n` + `Microsoft - Monaco`
+            + `\n` + `pngwn - MDsveX`
+            + `\n` + `Made in Svelte v5, hosted on GitHub Pages`
             + `\n`
             + `\n` + `Not affiliated with Scratchin' Melodii or LJ LephemStar.`;
         SMUIPrompts.buildAndAwaitResult({
