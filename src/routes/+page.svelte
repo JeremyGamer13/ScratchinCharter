@@ -36,9 +36,11 @@
         }
     };
     const surferGetsTimeUpdate = (newTime) => {
-        if (Application.state.timelineMode == "sections") {
+        if (Application.state.timelineMode === "sections") {
             // newTime is in MS
             waveSurfer.setTime(newTime / 1000);
+        }
+        if (Application.state.timelineMode === "section") {
         }
     };
     onMount(() => {
@@ -54,8 +56,11 @@
     let timeline;
     const timelineGetsSurferUpdate = (newTime) => {
         // newTime is in seconds
-        if (Application.state.timelineMode == "sections") {
+        if (Application.state.timelineMode === "sections") {
+            // need to convert to MS
             timeline.timeline.setTime(newTime * 1000);
+        }
+        if (Application.state.timelineMode === "section") {
         }
     };
     const timelineListenForEvents = () => {

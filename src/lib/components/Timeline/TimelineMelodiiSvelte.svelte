@@ -27,8 +27,11 @@
             // Prevent the first keyframe from being moved in sections mode
             this.timelineInstance.timeline.onKeyframeChanged((event) => {
                 if (event.source !== "user") return;
-                if (Application.state.timelineMode !== "sections") return;
-                if (event.target.prevVal !== 0) return;
+                if (event.type !== "keyframe") return;
+                if (event.keyframe.trackHelper === true) return;
+                if (Application.state.timelineMode === "sections") {
+                    if (event.target.prevVal !== 0) return;
+                }
                 event.preventDefault();
                 Application.loadChartIntoTimeline();
             });
@@ -79,6 +82,23 @@
             Application.validateChart();
             Application.loadChartIntoTimeline();
             this.restoreSelected();
+        }
+
+        setSnappingForSections() {
+            const options = this.timelineInstance.timeline.getOptions();
+            options.snapStep = 200;
+            options.stepPx = 120;
+            options.stepSmallPx = 30;
+            options.stepVal = 1000;
+            this.timelineInstance.timeline.setOptions(options);
+        }
+        setSnappingForSection(beatsPerMeasurement) {
+            const options = this.timelineInstance.timeline.getOptions();
+            options.snapStep = 1000 / beatsPerMeasurement;
+            options.stepPx = 1000 / (beatsPerMeasurement * 2);
+            options.stepSmallPx = 1000 / (beatsPerMeasurement * 4);
+            options.stepVal = 1000;
+            this.timelineInstance.timeline.setOptions(options);
         }
 
         removeSelectedKeyframes() {

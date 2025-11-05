@@ -20,6 +20,7 @@ const state = $state({
 
     /** @type {"sections"|"section"} */
     timelineMode: "sections",
+    timelineSection: null,
 });
 
 class Application {

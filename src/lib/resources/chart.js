@@ -34,10 +34,21 @@ class MelodiiChart {
         return (/[a-zA-Z0-9\-\_]/gi).test(eventId);
     }
 
+    static samplesPerBeatToBPM(samplesPerBeat, sampleRate) {
+        return (sampleRate * 60) / samplesPerBeat;
+    }
+    static bpmToSamplesPerBeat(bpm, sampleRate) {
+        return (sampleRate * 60) / bpm;
+    }
+    static secondsToBeat(seconds, sampleRate, samplesPerBeat) {
+        return seconds * (sampleRate / samplesPerBeat);
+    }
+    static beatToSeconds(beat, sampleRate, samplesPerBeat) {
+        return beat * (samplesPerBeat / sampleRate);
+    }
+
     static validateChart(chart) {
-        /**
-         * @type {{ sections:[{}] }}
-         */
+        /** @type {{ sections:[{}] }} */
         const fixedChart = structuredClone(chart);
         // chart props
         if (!this.isValidVersion(fixedChart.version))
@@ -96,6 +107,63 @@ class MelodiiChart {
                     keyframes,
                 },
             ],
+        };
+    }
+    /** @param {{sections:[{}]}} chart @returns {import("animation-timeline-js").TimelineModel} */
+    static getTimelineForSection(chart, section) {
+        const sampleRate = chart.sampleRate;
+        const sectionIdx = chart.sections.findIndex(s => s.start === section.start);
+        if (sectionIdx === -1) throw new Error("Section not present in the chart");
+        const nextSection = chart.sections[sectionIdx + 1];
+
+        const tracks = Object.keys(chart.tracks).map(trackKey => {
+            /** @type {[[start:number, end:number, payload:any?]]} */
+            const track = chart.tracks[trackKey];
+            const row = {
+                title: trackKey,
+                keyframes: track
+                    .filter(note => note[0] >= section.start && (nextSection ? note[0] <= nextSection.start : true))
+                    .map(note => ({
+                        _row: trackKey,
+                        // TODO: Were samples placed based on samples per beat or are they exact timings in the song?
+                        // This currently assumes exact song timings. Need to examine built-in songs to tell later.
+                        val: this.secondsToBeat((note[0] - section.start) / sampleRate, sampleRate, section.samplesPerBeat) * 1000,
+                        end: this.secondsToBeat((note[1] - section.start) / sampleRate, sampleRate, section.samplesPerBeat) * 1000,
+                        payload: note[2],
+                    })),
+            };
+            return row;
+        });
+        // add helper track if there's another section after this
+        if (nextSection) {
+            const helperTrackName = "(Section Length)";
+            const helperTrack = {
+                title: helperTrackName,
+                trackHelper: true,
+                keyframes: [
+                    {
+                        _row: helperTrackName,
+                        val: 0,
+                        draggable: false,
+                        deletable: false,
+                        selectable: false,
+                        trackHelper: true,
+                    },
+                    {
+                        _row: helperTrackName,
+                        val: this.secondsToBeat((nextSection.start - section.start) / sampleRate, sampleRate, section.samplesPerBeat) * 1000,
+                        draggable: false,
+                        deletable: false,
+                        selectable: false,
+                        trackHelper: true,
+                    }
+                ]
+            }
+            tracks.unshift(helperTrack);
+        }
+
+        return {
+            rows: tracks,
         };
     }
     /** @param {import("animation-timeline-js").TimelineModel} model */

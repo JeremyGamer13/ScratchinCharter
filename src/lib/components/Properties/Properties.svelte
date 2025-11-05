@@ -21,7 +21,13 @@
     let sectionsSelected = $derived(Application.state.timelineMode === "sections" ?
         Application.state.timeline && Application.state.timeline.reactive.selectedRow === "Sections"
         : false);
+    let trackSelected = $derived(Application.state.timelineMode === "section" ?
+        Application.state.timeline && Application.state.timeline.reactive.selectedRow !== ""
+        : false);
     let sectionSelected = $derived(Application.state.timelineMode === "sections" ?
+        Application.state.timeline && Application.state.timeline.reactive.selectedKeyframes.length > 0
+        : false);
+    let noteSelected = $derived(Application.state.timelineMode === "section" ?
         Application.state.timeline && Application.state.timeline.reactive.selectedKeyframes.length > 0
         : false);
 
@@ -71,6 +77,25 @@
     const propertiesSectionsAddNew = () => {
         Application.state.timeline.melodii.addSectionAtCursor();
     };
+    const propertiesOpenSection = (section) => {
+        Application.state.timeline.melodii.applyChartChanges();
+
+        
+
+        Application.state.timeline.melodii.reloadChart();
+    };
+    const propertiesOpenSectionFromKeyframe = (keyframe) => {
+        if (keyframe._row !== "Sections") throw new Error("Unexpected row name");
+        const sections = $SaveState.chart.sections;
+        const possibleSections = sections.filter(section => section.name === keyframe.name);
+        if (!possibleSections[0]) return;
+
+        const sampleTime = Math.trunc((keyframe.val / 1000) * $SaveState.chart.sampleRate);
+        const section = possibleSections.find(section => section.start === sampleTime);
+        if (!section) return;
+        
+        propertiesOpenSection(section);
+    };
 
     const propertiesSectionGetValue = (key, keyframes = []) => {
         const values = keyframes.map(keyframe => keyframe[key]);
@@ -111,8 +136,10 @@
     <Header dir="ltr">
         <Title>Properties</Title>
         <Subtitle>
-            {#if sectionSelected}
-                Section ({Application.state.timeline.reactive.selectedKeyframes.length})
+            {#if sectionSelected || noteSelected}
+                {sectionSelected ? "Section" : "Note"} ({Application.state.timeline.reactive.selectedKeyframes.length})
+            {:else if trackSelected}
+                Track
             {:else if sectionsSelected}
                 Sections
             {:else}
@@ -145,6 +172,15 @@
                 >{#snippet helper()}
                     <HelperText>beatsPerMeasurement</HelperText>
                 {/snippet}</Textfield>
+                {#if Application.state.timeline.reactive.selectedKeyframes.length === 1}
+                    <Button style="width:100%" touch variant="raised" onclick={() => propertiesOpenSectionFromKeyframe(Application.state.timeline.reactive.selectedKeyframes[0])}>
+                        <Label>Open Timeline</Label>
+                    </Button>
+                {/if}
+            {:else if noteSelected}
+                <!-- Note -->
+            {:else if trackSelected}
+                <!-- Track -->
             {:else if sectionsSelected}
                 <!-- Sections -->
                 <p>
@@ -163,10 +199,17 @@
                 <Button style="width:100%" touch variant="raised" onclick={propertiesSectionsSelectFirst}>
                     <Label>Select first section</Label>
                 </Button>
-                <hr>
                 <Button style="width:100%" touch variant="raised" onclick={propertiesSectionsAddNew}>
                     <Label>Add new section at cursor</Label>
                 </Button>
+                <hr>
+                <Title>Sections</Title>
+                <Subtitle>Click on one of your sections to edit the notes inside.</Subtitle>
+                {#each $SaveState.chart.sections as section}
+                    <Button style="width:100%" touch variant="raised" onclick={() => propertiesOpenSection(section)}>
+                        <Label>{section.name}</Label>
+                    </Button>
+                {/each}
             {:else}
                 <!-- Project -->
                 <Textfield style="width:100%" variant="filled"
