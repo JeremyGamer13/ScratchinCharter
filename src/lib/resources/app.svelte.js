@@ -138,6 +138,9 @@ class Application {
         this.validateChart();
         this.loadChartIntoTimeline();
     }
+    // TODO: stop playing wavesurfer on switch
+    // TODO: deselect all on switch
+    // TODO: set timeline time correctly on switch
     static switchTimelineToSections() {
         if (!state.timeline) return;
         state.timelineMode = "sections";
