@@ -24,12 +24,14 @@
     let trackSelected = $derived(Application.state.timelineMode === "section" ?
         Application.state.timeline && Application.state.timeline.reactive.selectedRow !== ""
         : false);
-    let sectionSelected = $derived(Application.state.timelineMode === "sections" ?
-        Application.state.timeline && Application.state.timeline.reactive.selectedKeyframes.length > 0
-        : false);
     let noteSelected = $derived(Application.state.timelineMode === "section" ?
         Application.state.timeline && Application.state.timeline.reactive.selectedKeyframes.length > 0
         : false);
+    let sectionSelected = $derived(Application.state.timelineMode === "sections" ?
+        Application.state.timeline && Application.state.timeline.reactive.selectedKeyframes.length > 0
+        : (Application.state.timelineMode === "section" ?
+            Application.state.timeline && Application.state.timeline.reactive.selectedRow === ""
+            : false));
 
     const propertiesProjectConvertRate = async () => {
         const doConvert = await SMUIPrompts.confirm("Are you sure you want to change the Sample rate of your chart?"
@@ -79,10 +81,11 @@
     };
     const propertiesOpenSection = (section) => {
         Application.state.timeline.melodii.applyChartChanges();
-
-        
-
-        Application.state.timeline.melodii.reloadChart();
+        Application.switchTimelineToSection(section);
+    };
+    const propertiesExitSection = () => {
+        Application.state.timeline.melodii.applyChartChanges();
+        Application.switchTimelineToSections();
     };
     const propertiesOpenSectionFromKeyframe = (keyframe) => {
         if (keyframe._row !== "Sections") throw new Error("Unexpected row name");
@@ -151,30 +154,38 @@
         {#if Application.state.appLoaded}
             {#if sectionSelected}
                 <!-- Section -->
-                <Textfield style="width:100%" variant="filled" type="text"
-                    value={propertiesSectionGetValue("name", Application.state.timeline.reactive.selectedKeyframes)}
-                    oninput={(event) => propertiesSectionSetEventValue(event, "name", Application.state.timeline.reactive.selectedKeyframes)}
-                    label="Name"
-                >{#snippet helper()}
-                    <HelperText>Custom name for this section.</HelperText>
-                {/snippet}</Textfield>
-                <Textfield style="width:100%" variant="filled" type="number"
-                    value={propertiesSectionGetBPMNumber("samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
-                    oninput={(event) => propertiesSectionSetEventBPMValue(event, "samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
-                    label="BPM"
-                >{#snippet helper()}
-                    <HelperText>The BPM (beats per minute) for this section onwards.</HelperText>
-                {/snippet}</Textfield>
-                <Textfield style="width:100%" variant="filled" type="number"
-                    value={propertiesSectionGetValueNumber("beatsPerMeasurement", Application.state.timeline.reactive.selectedKeyframes)}
-                    oninput={(event) => propertiesSectionSetEventValue(event, "beatsPerMeasurement", Application.state.timeline.reactive.selectedKeyframes)}
-                    label="beatsPerMeasurement"
-                >{#snippet helper()}
-                    <HelperText>beatsPerMeasurement</HelperText>
-                {/snippet}</Textfield>
-                {#if Application.state.timeline.reactive.selectedKeyframes.length === 1}
-                    <Button style="width:100%" touch variant="raised" onclick={() => propertiesOpenSectionFromKeyframe(Application.state.timeline.reactive.selectedKeyframes[0])}>
-                        <Label>Open Timeline</Label>
+                {#if Application.state.timelineMode === "sections"}
+                    <!-- Allow editing the section's properties -->
+                    <Textfield style="width:100%" variant="filled" type="text"
+                        value={propertiesSectionGetValue("name", Application.state.timeline.reactive.selectedKeyframes)}
+                        oninput={(event) => propertiesSectionSetEventValue(event, "name", Application.state.timeline.reactive.selectedKeyframes)}
+                        label="Name"
+                    >{#snippet helper()}
+                        <HelperText>Custom name for this section.</HelperText>
+                    {/snippet}</Textfield>
+                    <Textfield style="width:100%" variant="filled" type="number"
+                        value={propertiesSectionGetBPMNumber("samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
+                        oninput={(event) => propertiesSectionSetEventBPMValue(event, "samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
+                        label="BPM"
+                    >{#snippet helper()}
+                        <HelperText>The BPM (beats per minute) for this section onwards.</HelperText>
+                    {/snippet}</Textfield>
+                    <Textfield style="width:100%" variant="filled" type="number"
+                        value={propertiesSectionGetValueNumber("beatsPerMeasurement", Application.state.timeline.reactive.selectedKeyframes)}
+                        oninput={(event) => propertiesSectionSetEventValue(event, "beatsPerMeasurement", Application.state.timeline.reactive.selectedKeyframes)}
+                        label="beatsPerMeasurement"
+                    >{#snippet helper()}
+                        <HelperText>beatsPerMeasurement</HelperText>
+                    {/snippet}</Textfield>
+                    {#if Application.state.timeline.reactive.selectedKeyframes.length === 1}
+                        <Button style="width:100%" touch variant="raised" onclick={() => propertiesOpenSectionFromKeyframe(Application.state.timeline.reactive.selectedKeyframes[0])}>
+                            <Label>Open Timeline</Label>
+                        </Button>
+                    {/if}
+                {:else}
+                    <!-- We are editing the notes of this section -->
+                    <Button style="width:100%" touch variant="raised" onclick={() => propertiesExitSection()}>
+                        <Label>Exit Timeline</Label>
                     </Button>
                 {/if}
             {:else if noteSelected}

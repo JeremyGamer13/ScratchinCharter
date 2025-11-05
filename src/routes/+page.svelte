@@ -41,6 +41,9 @@
             waveSurfer.setTime(newTime / 1000);
         }
         if (Application.state.timelineMode === "section") {
+            //  newTime is what beat we are on * 1000
+            const seconds = MelodiiChart.beatToSeconds(newTime / 1000, $SaveState.chart.sampleRate, Application.state.timelineSection.samplesPerBeat);
+            waveSurfer.setTime(seconds);
         }
     };
     onMount(() => {
@@ -61,12 +64,18 @@
             timeline.timeline.setTime(newTime * 1000);
         }
         if (Application.state.timelineMode === "section") {
+            // need to convert to beat
+            const beat = MelodiiChart.secondsToBeat(newTime, $SaveState.chart.sampleRate, Application.state.timelineSection.samplesPerBeat);
+            timeline.timeline.setTime(Math.max(0, beat * 1000));
         }
     };
     const timelineListenForEvents = () => {
         timeline.reactive.events.on("add-keyframe", () => {
             if (Application.state.timelineMode === "sections") {
                 Application.state.timeline.melodii.addSectionAtCursor();
+            }
+            if (Application.state.timelineMode === "section") {
+                // TODO: THis
             }
         });
         timeline.reactive.events.on("remove-keyframes", () => {

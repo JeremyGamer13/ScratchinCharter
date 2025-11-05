@@ -116,6 +116,10 @@ class Application {
             const timelineModel = MelodiiChart.getTimelineForSections(chart);
             state.timeline.timeline.setModel(timelineModel);
         }
+        if (state.timelineMode === "section") {
+            const timelineModel = MelodiiChart.getTimelineForSection(chart, state.timelineSection);
+            state.timeline.timeline.setModel(timelineModel);
+        }
         state.timeline.reactive.rerenderOutline();
     }
     static saveCurrentChartTimeline() {
@@ -126,8 +130,24 @@ class Application {
             const timelineModel = state.timeline.timeline.getModel();
             chart.sections = MelodiiChart.parseTimelineAsSections(timelineModel, chart.sampleRate);
         }
+        if (state.timelineMode === "section") {
+            // TODO: this
+        }
 
         updateStore(SaveState, (state) => { state.chart = chart; });
+        this.validateChart();
+        this.loadChartIntoTimeline();
+    }
+    static switchTimelineToSections() {
+        if (!state.timeline) return;
+        state.timelineMode = "sections";
+        this.validateChart();
+        this.loadChartIntoTimeline();
+    }
+    static switchTimelineToSection(section) {
+        if (!state.timeline) return;
+        state.timelineSection = section;
+        state.timelineMode = "section";
         this.validateChart();
         this.loadChartIntoTimeline();
     }

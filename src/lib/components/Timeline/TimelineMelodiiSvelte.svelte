@@ -27,11 +27,8 @@
             // Prevent the first keyframe from being moved in sections mode
             this.timelineInstance.timeline.onKeyframeChanged((event) => {
                 if (event.source !== "user") return;
-                if (event.type !== "keyframe") return;
-                if (event.keyframe.trackHelper === true) return;
-                if (Application.state.timelineMode === "sections") {
-                    if (event.target.prevVal !== 0) return;
-                }
+                if (event.target.type !== "keyframe") return;
+                if (!this.shouldDragBeBlocked(event)) return;
                 event.preventDefault();
                 Application.loadChartIntoTimeline();
             });
@@ -41,6 +38,15 @@
             });
         }
 
+        shouldDragBeBlocked(event) {
+            // always block if this is a track helper
+            if (event.target.keyframe.trackHelper === true) return true;
+            // if we are in sections mode, the keyframe at 0 should not be dragged
+            if (Application.state.timelineMode === "sections") {
+                if (event.target.prevVal === 0) return true;
+            }
+            return false;
+        }
         getAllKeyframesWithRows(model) {
             if (!model) model = this.timelineInstance.timeline.getModel();
             const allKeyframes = [];
