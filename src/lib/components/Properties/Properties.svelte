@@ -103,12 +103,12 @@
     const propertiesSectionGetValue = (key, keyframes = []) => {
         const values = keyframes.map(keyframe => keyframe[key]);
         if (values.every(value => value === values[0]))
-            return values[0];
+            return values[0] ?? "";
         return "(mixed)";
     };
     const propertiesSectionGetValueNumber = (key, keyframes = []) => {
         const values = keyframes.map(keyframe => keyframe[key]);
-        return values[0];
+        return values[0] ?? 0;
     };
     const propertiesSectionSetValue = (value, key, keyframes) => {
         const model = Application.state.timeline.timeline.getModel();
@@ -126,7 +126,7 @@
     };
     const propertiesSectionGetBPMNumber = (key, keyframes = []) => {
         const values = keyframes.map(keyframe => keyframe[key]);
-        const samplesPerBeat = values[0];
+        const samplesPerBeat = values[0] || 0;
         return ($SaveState.chart.sampleRate * 60) / samplesPerBeat;
     };
     const propertiesSectionSetEventBPMValue = (event, key, keyframes) => {

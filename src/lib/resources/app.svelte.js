@@ -143,12 +143,18 @@ class Application {
     // TODO: set timeline time correctly on switch
     static switchTimelineToSections() {
         if (!state.timeline) return;
+        state.timeline.reactive.selectedRow = "";
+        state.timeline.reactive.selectedKeyframes = [];
+        state.timeline.reactive.addTypeLabel = "section";
         state.timelineMode = "sections";
         this.validateChart();
         this.loadChartIntoTimeline();
     }
     static switchTimelineToSection(section) {
         if (!state.timeline) return;
+        state.timeline.reactive.selectedRow = "";
+        state.timeline.reactive.selectedKeyframes = [];
+        state.timeline.reactive.addTypeLabel = "note";
         state.timelineSection = section;
         state.timelineMode = "section";
         this.validateChart();
