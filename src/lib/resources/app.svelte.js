@@ -126,12 +126,17 @@ class Application {
         if (!state.timeline) return;
         const saveState = stores.get(SaveState);
         const chart = saveState.chart;
+
+        const timelineModel = state.timeline.timeline.getModel();
         if (state.timelineMode === "sections") {
-            const timelineModel = state.timeline.timeline.getModel();
             chart.sections = MelodiiChart.parseTimelineAsSections(timelineModel, chart.sampleRate);
         }
         if (state.timelineMode === "section") {
-            // TODO: this
+            // make the new track list, then empty the section so merging the new list with the rest of the chart wont add duplicates
+            const newTracks = MelodiiChart.parseTimelineAsSectionTracks(timelineModel, state.timelineSection, chart.sampleRate);
+            const clearedSectionChart = MelodiiChart.clearSection(state.timelineSection, chart);
+            const mergedTracks = MelodiiChart.mergeTracks(clearedSectionChart.tracks, newTracks);
+            chart.tracks = mergedTracks;
         }
 
         updateStore(SaveState, (state) => { state.chart = chart; });

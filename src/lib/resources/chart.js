@@ -72,6 +72,21 @@ class MelodiiChart {
         });
         fixedChart.sections = fixedChart.sections.filter((section, i) => fixedChart.sections.findIndex(s => s.start === section.start) === i);
 
+        // fix tracks, truncate decimals, sort notes, and remove duplicate notes
+        for (const trackName in fixedChart.tracks) {
+            const track = fixedChart.tracks[trackName]
+                .map(note => {
+                    if (!note[1])
+                        note[1] = note[0];
+                    note[0] = Math.abs(Math.trunc(Number(note[0])));
+                    note[1] = Math.abs(Math.trunc(Number(note[1])));
+                    return note;
+                });
+            track.sort((a, b) => a[0] - b[0]);
+            fixedChart.tracks[trackName] = track
+                .filter((note, i) => track.findIndex(n => n[0] === note[0]) === i);
+        }
+
         return fixedChart
     }
 
@@ -84,18 +99,23 @@ class MelodiiChart {
         // Each section starts at a specific sample time, and we need it in ms
         const keyframes = chart.sections.map(section => ({
             _row: rowTitle,
+            section,
             val: (section.start / chart.sampleRate) * 1000,
             name: section.name,
             samplesPerBeat: section.samplesPerBeat,
             beatsPerMeasurement: section.beatsPerMeasurement,
         }));
-        if (!keyframes[0]) keyframes[0] = {
-            _row: rowTitle,
-            val: 0,
-            name: this.defaultSection().name,
-            samplesPerBeat: this.defaultSection().samplesPerBeat,
-            beatsPerMeasurement: this.defaultSection().beatsPerMeasurement,
-        };
+        if (!keyframes[0]) {
+            const firstSection = this.defaultSection();
+            keyframes[0] = {
+                _row: rowTitle,
+                section: firstSection,
+                val: 0,
+                name: firstSection.name,
+                samplesPerBeat: firstSection.samplesPerBeat,
+                beatsPerMeasurement: firstSection.beatsPerMeasurement,
+            };
+        }
         // make the first keyframe not touchable
         const firstKeyframe = keyframes[0];
         firstKeyframe.draggable = false;
@@ -121,10 +141,12 @@ class MelodiiChart {
             const track = chart.tracks[trackKey];
             const row = {
                 title: trackKey,
+                track,
                 keyframes: track
-                    .filter(note => note[0] >= section.start && (nextSection ? note[0] <= nextSection.start : true))
+                    .filter(note => note[0] >= section.start && (nextSection ? note[0] < nextSection.start : true))
                     .map(note => ({
                         _row: trackKey,
+                        note,
                         // TODO: Were samples placed based on samples per beat or are they exact timings in the song?
                         // This currently assumes exact song timings. Need to examine built-in songs to tell later.
                         val: this.secondsToBeat((note[0] - section.start) / sampleRate, sampleRate, section.samplesPerBeat) * 1000,
@@ -178,6 +200,64 @@ class MelodiiChart {
             "beatsPerMeasurement": keyframe.beatsPerMeasurement
         }));
         return sections;
+    }
+    /** @param {import("animation-timeline-js").TimelineModel} model */
+    static parseTimelineAsSectionTracks(model, section, sampleRate) {
+        const tracks = {};
+        for (const row of model.rows) {
+            if (row.trackHelper) continue;
+            // each (real) row in the model is assigned an array of keyframes
+            // currently these keyframes have no length but that might be adjusted later
+            const notes = row.keyframes
+                .filter(keyframe => !keyframe.trackHelper)
+                .map(keyframe => {
+                    const start = keyframe.val;
+                    const end = keyframe.val; // see above comments
+                    // to convert sampleTime to beat, we use
+                    // this.secondsToBeat((note[0] - section.start) / sampleRate, sampleRate, section.samplesPerBeat) * 1000
+                    // so we have to do the inverse
+                    const note = [
+                        (this.beatToSeconds(start / 1000, sampleRate, section.samplesPerBeat) * sampleRate) + section.start,
+                        (this.beatToSeconds(end / 1000, sampleRate, section.samplesPerBeat) * sampleRate) + section.start
+                    ];
+                    if (keyframe.payload)
+                        note.push(keyframe.payload);
+                    return note;
+                });
+            tracks[row.title] = notes;
+        }
+        return tracks;
+    }
+
+    static clearSection(section, chart) {
+        const newChart = structuredClone(chart);
+        const sectionIdx = newChart.sections.findIndex(s => s.start === section.start);
+        if (sectionIdx === -1) throw new Error("Section not present in the chart");
+        const nextSection = newChart.sections[sectionIdx + 1];
+
+        for (const trackName in newChart.tracks) {
+            const track = newChart.tracks[trackName];
+            // filter out the notes that are in the section, so we only keep the ones not in the section
+            // this filter should be the same as the one that gets the timeline for this section (just prepended with ! for not)
+            newChart.tracks[trackName] = track.filter(note => !(note[0] >= section.start && (nextSection ? note[0] < nextSection.start : true)))
+        }
+        return newChart;
+    }
+    static mergeTracks(tracks1, tracks2) {
+        const mergedTracks = structuredClone(tracks1);
+        for (const trackName in tracks2) {
+            // if tracks2 has a track not present in mergedTracks then add it as an empty track for now
+            if (!mergedTracks[trackName]) mergedTracks[trackName] = [];
+            // merge the original track with the new track
+            // should be sorted by start time & have no duplicates
+            const originalTrack = tracks1[trackName];
+            const newTrack = tracks2[trackName]
+            const mergedTrack = [].concat(originalTrack, newTrack);
+            mergedTrack.sort((a, b) => a[0] - b[0]);
+            mergedTracks[trackName] = mergedTrack
+                .filter((note, i) => mergedTrack.findIndex(n => n[0] === note[0]) === i);
+        }
+        return mergedTracks;
     }
 }
 

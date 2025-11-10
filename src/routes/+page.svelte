@@ -82,8 +82,19 @@
                 // TODO: THis
             }
         });
-        timeline.reactive.events.on("remove-keyframes", () => {
-            Application.state.timeline.melodii.removeSelectedKeyframes();
+        timeline.reactive.events.on("remove-keyframes", async () => {
+            if (Application.state.timelineMode === "sections") {
+                const iWantToDelete = await SMUIPrompts.confirm("Are you sure you want to delete the selected sections?\nAll notes inside will also be deleted.");
+                if (!iWantToDelete) return;
+                // save so we update the keyframe's timing values
+                Application.state.timeline.melodii.applyChartChanges();
+                // now we can clear the section so when we remove the keyframes, they arent left behind
+                for (const keyframe of Application.state.timeline.reactive.selectedKeyframes) {
+                    const newChart = MelodiiChart.clearSection(keyframe.section, $SaveState.chart);
+                    $SaveState.chart = newChart;
+                }
+                Application.state.timeline.melodii.removeSelectedKeyframes();
+            }
         });
     };
 
