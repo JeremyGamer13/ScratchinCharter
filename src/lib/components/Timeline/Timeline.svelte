@@ -78,6 +78,7 @@
         }
     };
 
+    const timelineOriginals = {};
     class TimelineReactive {
         static get selectedRow() {
             return selectedRow;
@@ -125,6 +126,11 @@
             selectedKeyframes = event.selected;
         });
     };
+    /** @param {import("animation-timeline-js").Timeline} timeline */
+    const createOriginals = (timeline) => {
+        timelineOriginals["_renderKeyframe"] = timeline._renderKeyframe.bind(timeline);
+        timelineOriginals["_formatUnitsText"] = timeline._formatUnitsText.bind(timeline);
+    };
     onMount(async () => {
         if (instance.created) return;
         library = await TimelineLibrary();
@@ -133,6 +139,8 @@
         instance.library = library;
         instance.timeline = timeline;
         instance.reactive = TimelineReactive;
+        createOriginals(timeline);
+        instance.original = timelineOriginals;
         createOutlineAttachments();
         TimelineReactive.rerenderOutline();
         createEventListeners();

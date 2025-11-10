@@ -1,0 +1,16 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="47.49425"
+    height="47.49425" viewBox="0,0,47.49425,47.49425">
+    <g transform="translate(-216.25287,-156.25287)">
+        <g stroke-miterlimit="10">
+            <path
+                d="M226.29618,202.278c-4.41828,0 -8,-3.58172 -8,-8v-28.556c0,-4.41828 3.58172,-8 8,-8h27.40765c4.41828,0 8,3.58172 8,8v28.556c0,4.41828 -3.58172,8 -8,8z"
+                fill="#daedfb" stroke="#6292b5" stroke-width="2" /><text
+                transform="translate(224.07063,190.70355) scale(0.95622,0.95622)" font-size="40" xml:space="preserve"
+                fill="#000000" stroke="none" stroke-width="1" font-family="&quot;Verdana&quot;, Pixel"
+                font-weight="normal" text-anchor="start">
+                <tspan x="0" dy="0">Q</tspan>
+            </text>
+        </g>
+    </g>
+</svg>
+<!--rotationCenter:23.74712500000001:28.426013802234507-->
