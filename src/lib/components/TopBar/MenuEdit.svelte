@@ -8,6 +8,7 @@
     import Button, { Label } from '@smui/button';
     
     import Application from "$lib/resources/app.svelte";
+    import SMUIPrompts from "$lib/resources/smui-prompts";
     import MelodiiChart from "$lib/resources/chart";
     
     let props = $props();
@@ -19,11 +20,11 @@
 
     };
     const resetChart = async () => {
-        // TODO: use dialog elements, probably make a wrapper around it
-        const areYouSure = await confirm("Are you sure you want to reset the entire chart? All of the chart information will be deleted!");
+        const areYouSure = await SMUIPrompts.confirm("Are you sure you want to reset the entire chart? All of the chart information will be deleted!");
         if (!areYouSure) return;
 
         await Application.importChartFromObject(MelodiiChart.defaultChart());
+        Application.loadChartIntoTimeline();
     };
 </script>
 
