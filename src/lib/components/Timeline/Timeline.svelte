@@ -7,8 +7,13 @@
     import { EventEmitter } from "events";
     import Tooltip, { Wrapper } from '@smui/tooltip';
     import Button, { Label } from '@smui/button';
+    import Textfield from '@smui/textfield';
     import Fab, { Icon } from '@smui/fab';
+    import { Title } from '@smui/dialog';
+    import Slider from '@smui/slider';
+    import Menu from '@smui/menu';
     
+    import Application from "$lib/resources/app.svelte";
     import TimelineLibrary from "$lib/components/Timeline/TimelineLibrary.js";
     import TimelineState from "$lib/state/timeline.svelte.js";
     
@@ -18,6 +23,8 @@
     let outlineHeader = null;
     let outlineContainer = null;
     let outlineScrollContainer = null;
+
+    let buttonMenuPlaybackSpeed = $state(null);
 
     /** @type {import("animation-timeline-js")} */
     let library = null;
@@ -138,9 +145,74 @@
         timeline?.dispose();
         instance.created = false;
     });
+
+    let appWavesurferPlaying = $state(false);
+    let appWavesurferSpeed = $state(1);
+    const appWavesurferSetSpeed = (newSpeed) => {
+        appWavesurferSpeed = newSpeed;
+
+        const speed = Number($state.snapshot(appWavesurferSpeed));
+        const realRate = (Number.isFinite(speed) && !Number.isNaN(speed)) ? Math.min(Math.max(0.01, speed), 1e+10) : 1;
+
+        let wasPlaying = Application.state.timingPreview.isPlaying();
+        let currentTime = Application.state.timingPreview.getCurrentTime();
+        Application.state.timingPreview.pause();
+        Application.state.timingPreview.setPlaybackRate(realRate);
+        Application.state.timingPreview.setTime(currentTime);
+        if (wasPlaying) Application.state.timingPreview.play();
+    };
+    onMount(() => {
+        window.addEventListener("scratchincharter-app-loaded", () => {
+            Application.state.timingPreview.on("play", () => {
+                appWavesurferPlaying = true;
+            });
+            Application.state.timingPreview.on("pause", () => {
+                appWavesurferPlaying = false;
+            });
+            Application.state.timingPreview.on("finish", () => {
+                appWavesurferPlaying = false;
+            });
+            Application.state.timingPreview.on("load", () => {
+                appWavesurferSpeed = Application.state.timingPreview.getPlaybackRate();
+            });
+            Application.state.timingPreview.on("decode", () => {
+                appWavesurferSpeed = Application.state.timingPreview.getPlaybackRate();
+            });
+        });
+    });
 </script>
 
+{#if Application.state.appLoaded}
+    <Menu bind:this={buttonMenuPlaybackSpeed}>
+        <Title>Playback Speed</Title>
+        <Textfield
+            value={appWavesurferSpeed}
+            variant="outlined"
+            label="Playback Speed"
+            suffix="x"
+            oninput={(event) => appWavesurferSetSpeed(event.target.value)}
+        />
+        <Slider
+            min={0.25}
+            max={2}
+            step={0.25}
+            tickMarks
+            discrete
+            value={appWavesurferSpeed}
+            onSMUISliderInput={(event) => appWavesurferSetSpeed(event.detail.value)}
+        />
+    </Menu>
+{/if}
 <div class="timeline-toolbar">
+    {#if Application.state.appLoaded}
+        <Wrapper><Fab color="primary" onclick={() => Application.state.timingPreview.playPause()}>
+            <Icon class="material-symbols">{!appWavesurferPlaying ? "play_arrow" : "pause"}</Icon>
+        </Fab><Tooltip>{!appWavesurferPlaying ? "Play" : "Pause"} the audio clip</Tooltip></Wrapper>
+        <Wrapper><Fab color="primary" onclick={() => buttonMenuPlaybackSpeed.setOpen(true)}>
+            <Icon class="material-symbols">slow_motion_video</Icon>
+        </Fab><Tooltip>Change the playback speed</Tooltip></Wrapper>
+        <div style="width:24px;"></div>
+    {/if}
     <Wrapper><Fab color="primary" onclick={() => timeline?.setInteractionMode("selection")}>
         <Icon class="material-symbols">arrow_selector_tool</Icon>
     </Fab><Tooltip>Select tool</Tooltip></Wrapper>

@@ -159,6 +159,7 @@
         await appReadSaveStateLarge();
         await appReadSaveState();
         Application.state.appLoaded = true;
+        window.dispatchEvent(new CustomEvent("scratchincharter-app-loaded"));
     };
     onMount(async () => {
         await Polyfill.registerPolyfill();

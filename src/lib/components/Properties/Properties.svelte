@@ -192,11 +192,53 @@
                 <!-- Note -->
             {:else if trackSelected}
                 <!-- Track -->
+                <!-- TODO: Add rename field -->
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Move track up</Label>
+                </Button>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Move track down</Label>
+                </Button>
+                <hr>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Add note at cursor</Label>
+                </Button>
+                <hr>
+                <Title>Presets</Title>
+                <Subtitle>
+                    Uses the Beats per Measure of this section to fill this entire track with notes.
+                </Subtitle>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Add Star Beat notes at cursor</Label>
+                </Button>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Add Beat notes at cursor</Label>
+                </Button>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Add Back Beat notes at cursor</Label>
+                </Button>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Add Offbeat notes at cursor</Label>
+                </Button>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Add Off Star Beat notes at cursor</Label>
+                </Button>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Add Off Back Beat notes at cursor</Label>
+                </Button>
+                <hr>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Clear Track</Label>
+                </Button>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Delete Track</Label>
+                </Button>
             {:else if sectionsSelected}
                 <!-- Sections -->
                 <p>
                     Each section marks a shift in the song.
                     <br>
+                    <!-- TODO: Its beats per measure not beats per measurement -->
                     You can change BPM at any section, and also how many
                     beats are in a measurement.
                     <br>

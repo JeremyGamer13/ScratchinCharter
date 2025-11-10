@@ -152,6 +152,7 @@ class Application {
         state.timeline.reactive.selectedKeyframes = [];
         state.timeline.reactive.addTypeLabel = "section";
         state.timelineMode = "sections";
+        state.timeline.melodii.setSnappingForSections();
         this.validateChart();
         this.loadChartIntoTimeline();
     }
@@ -162,6 +163,7 @@ class Application {
         state.timeline.reactive.addTypeLabel = "note";
         state.timelineSection = section;
         state.timelineMode = "section";
+        state.timeline.melodii.setSnappingForSection(section.beatsPerMeasurement);
         this.validateChart();
         this.loadChartIntoTimeline();
     }
@@ -176,6 +178,7 @@ class Application {
 
     static async askForSongBlob() {
         const [fileHandle] = await window.showOpenFilePicker({
+            // TODO: its scratchin-charter
             id: "scratchin-charting-songimport",
             multiple: false,
             types: [{
