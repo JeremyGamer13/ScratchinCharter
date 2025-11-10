@@ -139,6 +139,25 @@
             chart.sections.push(newSection);
             this.reloadChart();
         }
+        addNoteAtCursor(row) {
+            const rowToUse = row
+                || Application.state.timeline.reactive.selectedRow
+                || Application.state.timeline.reactive.selectedRowLast
+                || Object.keys($SaveState.chart.tracks).at(0);
+            if (!rowToUse) throw new Error("No row exists");
+
+            this.applyChartChanges();
+            const chart = $SaveState.chart;
+            const section = Application.state.timelineSection;
+            const cursorTime = Application.state.timeline.timeline.getTime();
+            const sampleTime = (MelodiiChart.beatToSeconds(cursorTime / 1000, chart.sampleRate, section.samplesPerBeat) * chart.sampleRate) + section.start;
+            const newNote = [sampleTime, sampleTime];
+
+            // Update chart
+            const track = chart.tracks[rowToUse];
+            track.push(newNote);
+            this.reloadChart();
+        }
     }
 
     TimelineMelodiiCreator.create = (timelineInstance) => {

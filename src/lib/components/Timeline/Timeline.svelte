@@ -79,6 +79,9 @@
             selectedRow = value;
             if (value !== "") selectedRowLast = value;
         }
+        static get selectedRowLast() {
+            return selectedRowLast;
+        }
         static get selectedKeyframes() {
             return selectedKeyframes;
         }

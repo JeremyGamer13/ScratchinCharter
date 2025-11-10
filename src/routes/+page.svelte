@@ -80,7 +80,7 @@
                 Application.state.timeline.melodii.addSectionAtCursor();
             }
             if (Application.state.timelineMode === "section") {
-                // TODO: THis
+                Application.state.timeline.melodii.addNoteAtCursor();
             }
         });
         timeline.reactive.events.on("remove-keyframes", async () => {
