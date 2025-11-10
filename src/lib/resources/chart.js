@@ -99,6 +99,7 @@ class MelodiiChart {
         // Each section starts at a specific sample time, and we need it in ms
         const keyframes = chart.sections.map(section => ({
             _row: rowTitle,
+            group: `justtoseparatekeyframes${Date.now()}${Math.random()}${Math.random()}${Math.random()}${Math.random()}`,
             section,
             val: (section.start / chart.sampleRate) * 1000,
             name: section.name,
@@ -109,6 +110,7 @@ class MelodiiChart {
             const firstSection = this.defaultSection();
             keyframes[0] = {
                 _row: rowTitle,
+                group: `justtoseparatekeyframes${Date.now()}${Math.random()}${Math.random()}${Math.random()}${Math.random()}`,
                 section: firstSection,
                 val: 0,
                 name: firstSection.name,
@@ -146,6 +148,7 @@ class MelodiiChart {
                     .filter(note => note[0] >= section.start && (nextSection ? note[0] < nextSection.start : true))
                     .map(note => ({
                         _row: trackKey,
+                        group: `justtoseparatekeyframes${Date.now()}${Math.random()}${Math.random()}${Math.random()}${Math.random()}`,
                         note,
                         // TODO: Were samples placed based on samples per beat or are they exact timings in the song?
                         // This currently assumes exact song timings. Need to examine built-in songs to tell later.
@@ -165,6 +168,7 @@ class MelodiiChart {
                 keyframes: [
                     {
                         _row: helperTrackName,
+                        group: `helpertracksectionlength`,
                         val: 0,
                         draggable: false,
                         deletable: false,
@@ -173,6 +177,7 @@ class MelodiiChart {
                     },
                     {
                         _row: helperTrackName,
+                        group: `helpertracksectionlength`,
                         val: this.secondsToBeat((nextSection.start - section.start) / sampleRate, sampleRate, section.samplesPerBeat) * 1000,
                         draggable: false,
                         deletable: false,
