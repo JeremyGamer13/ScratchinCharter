@@ -13,6 +13,7 @@
     import SaveState from "$lib/stores/state";
     import SaveStateLarge from "$lib/stores/state-large";
     import SMUIPrompts from "$lib/resources/smui-prompts";
+    import Polyfill from "$lib/resources/polyfill.js";
     import WaveSurferState from "$lib/state/wavesurfer.svelte.js";
     import MelodiiChart from "$lib/resources/chart";
     import TimelineMelodiiCreator from "$lib/components/Timeline/TimelineMelodii.svelte.js";
@@ -123,6 +124,7 @@
 
     const componentsHasLoaded = {
         app: false,
+        polyfill: false,
         stateSettings: false,
         stateSave: false,
         stateLarge: false,
@@ -133,6 +135,7 @@
         if (componentsHasLoaded.app) return;
 
         // make sure all other components have loaded, then we mark app as loaded
+        if (!componentsHasLoaded.polyfill) return;
         if (!componentsHasLoaded.stateSettings) return;
         if (!componentsHasLoaded.stateSave) return;
         if (!componentsHasLoaded.stateLarge) return;
@@ -155,6 +158,25 @@
         await appReadSaveState();
         Application.state.appLoaded = true;
     };
+    onMount(async () => {
+        await Polyfill.registerPolyfill();
+        if (!Polyfill.isBrowserSupported()) {
+            while (true) {
+                await SMUIPrompts.alert(`Your browser is not supported.`
+                    + `\n` + `This can be due to an outdated browser version, or you are using a browser with some functionality missing.`
+                    + `\n`
+                    + `\n` + `Google Chrome or Chromium is recommended. Other Chromium-based browsers (ie, Microsoft Edge, Brave, Opera) may work also.`
+                    + `\n`
+                    + `\n` + ` - Are you on a desktop device? (Mobile browsers may not work.)`
+                    + `\n` + ` - Are you on an up-to-date browser? (Firefox has not been tested.)`
+                );
+            }
+            return;
+        }
+
+        componentsHasLoaded.polyfill = true;
+        await componentLoaded();
+    });
     onMount(async () => {
         // crazy ass shit because of inconsistent timing
         if ($Settings.loaded) componentsHasLoaded.stateSettings = true;
