@@ -95,6 +95,8 @@
                     $SaveState.chart = newChart;
                 }
                 Application.state.timeline.melodii.removeSelectedKeyframes();
+            } else {
+                Application.state.timeline.melodii.removeSelectedKeyframes();
             }
         });
     };

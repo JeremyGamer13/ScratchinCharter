@@ -48,9 +48,14 @@
                 accept: {"application/json": [".json"]}
             }]
         });
+        // prepare to export
+        Application.saveCurrentChartTimeline();
+        Application.validateChart();
+        const chartObject = $state.snapshot($SaveState.chart);
+        const chartJson = JSON.stringify(chartObject);
+        // exporting
         const writable = await fileHandle.createWritable();
-        // TODO: actually export charts
-        await writable.write("Wouldnt it be nice to have a chart here?");
+        await writable.write(chartJson);
         await writable.close();
     };
 </script>
