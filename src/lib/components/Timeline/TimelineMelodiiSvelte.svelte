@@ -90,22 +90,29 @@
             this.restoreSelected();
         }
 
-        setSnappingForSections() {
+        setTimelineForSections() {
             const options = this.timelineInstance.timeline.getOptions();
             options.snapStep = 200;
             options.stepPx = 120;
             options.stepSmallPx = 30;
             options.stepVal = 1000;
             this.timelineInstance.timeline.setOptions(options);
+
+            this.timelineInstance.timeline._renderKeyframe = this.timelineInstance.original._renderKeyframe;
+            this.timelineInstance.timeline._formatUnitsText = this.timelineInstance.original._formatUnitsText;
         }
-        setSnappingForSection(beatsPerMeasurement) {
+        setTimelineForSection(beatsPerMeasurement) {
             const options = this.timelineInstance.timeline.getOptions();
             options.snapStep = 1000 / beatsPerMeasurement;
             options.stepPx = 1000 / (beatsPerMeasurement * 2);
             options.stepSmallPx = 1000 / (beatsPerMeasurement * 4);
             options.stepVal = 1000;
             this.timelineInstance.timeline.setOptions(options);
+
+            this.timelineInstance.timeline._renderKeyframe = this.timelineInstance.original._renderKeyframe;
+            this.timelineInstance.timeline._formatUnitsText = (beat) => { return (beat / 1000) + 1; };
         }
+        
 
         removeSelectedKeyframes() {
             // remove the selected keyframes from the model

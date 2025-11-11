@@ -152,7 +152,7 @@ class Application {
         state.timeline.reactive.selectedKeyframes = [];
         state.timeline.reactive.addTypeLabel = "section";
         state.timelineMode = "sections";
-        state.timeline.melodii.setSnappingForSections();
+        state.timeline.melodii.setTimelineForSections();
         this.validateChart();
         this.loadChartIntoTimeline();
     }
@@ -163,7 +163,7 @@ class Application {
         state.timeline.reactive.addTypeLabel = "note";
         state.timelineSection = section;
         state.timelineMode = "section";
-        state.timeline.melodii.setSnappingForSection(section.beatsPerMeasurement);
+        state.timeline.melodii.setTimelineForSection(section.beatsPerMeasurement);
         this.validateChart();
         this.loadChartIntoTimeline();
     }
