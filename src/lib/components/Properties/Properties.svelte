@@ -38,6 +38,8 @@
         Application.state.timeline && Application.state.timeline.reactive.selectedRow === ""
         : false);
 
+    // no row or keyframe selected
+    // project
     const propertiesProjectConvertRate = async () => {
         const doConvert = await SMUIPrompts.confirm("Are you sure you want to change the Sample rate of your chart?"
             + "\n"
@@ -71,7 +73,14 @@
         // TODO: this
         throw new Error("Not implemented");
     };
+    // section
+    const propertiesSectionExitSection = () => {
+        Application.state.timeline.melodii.applyChartChanges();
+        Application.switchTimelineToSections();
+    };
 
+    // rows
+    // sections
     const propertiesSectionsSelectFirst = () => {
         const model = Application.state.timeline.timeline.getModel();
         if (!model) return;
@@ -84,15 +93,14 @@
     const propertiesSectionsAddNew = () => {
         Application.state.timeline.melodii.addSectionAtCursor();
     };
-    const propertiesOpenSection = (section) => {
+    const propertiesSectionsOpenSection = (section) => {
         Application.state.timeline.melodii.applyChartChanges();
         Application.switchTimelineToSection(section);
     };
-    const propertiesExitSection = () => {
-        Application.state.timeline.melodii.applyChartChanges();
-        Application.switchTimelineToSections();
-    };
-    const propertiesOpenSectionFromKeyframe = (keyframe) => {
+
+    // keyframe
+    // section keyframe
+    const propertiesSectionKeyframeOpenSection = (keyframe) => {
         if (keyframe._row !== "Sections") throw new Error("Unexpected row name");
         const sections = $SaveState.chart.sections;
         const possibleSections = sections.filter(section => section.name === keyframe.name);
@@ -102,20 +110,19 @@
         const section = possibleSections.find(section => section.start === sampleTime);
         if (!section) return;
         
-        propertiesOpenSection(section);
+        propertiesSectionsOpenSection(section);
     };
-
-    const propertiesSectionGetValue = (key, keyframes = []) => {
+    const propertiesSectionKeyframeGetValue = (key, keyframes = []) => {
         const values = keyframes.map(keyframe => keyframe[key]);
         if (values.every(value => value === values[0]))
             return values[0] ?? "";
         return "(mixed)";
     };
-    const propertiesSectionGetValueNumber = (key, keyframes = []) => {
+    const propertiesSectionKeyframeGetValueNumber = (key, keyframes = []) => {
         const values = keyframes.map(keyframe => keyframe[key]);
         return values[0] ?? 0;
     };
-    const propertiesSectionSetValue = (value, key, keyframes) => {
+    const propertiesSectionKeyframeSetValue = (value, key, keyframes) => {
         const model = Application.state.timeline.timeline.getModel();
         const resolvedKeyframes = Application.state.timeline.melodii.resolveKeyframes(keyframes, model);
 
@@ -126,15 +133,15 @@
         Application.state.timeline.timeline.setModel(model);
         Application.state.timeline.melodii.applyChartChanges();
     };
-    const propertiesSectionSetEventValue = (event, key, keyframes) => {
+    const propertiesSectionKeyframeSetEventValue = (event, key, keyframes) => {
         propertiesSectionSetValue(event.target.value, key, keyframes);
     };
-    const propertiesSectionGetBPMNumber = (key, keyframes = []) => {
+    const propertiesSectionKeyframeGetBPMNumber = (key, keyframes = []) => {
         const values = keyframes.map(keyframe => keyframe[key]);
         const samplesPerBeat = values[0] || 0;
         return ($SaveState.chart.sampleRate * 60) / samplesPerBeat;
     };
-    const propertiesSectionSetEventBPMValue = (event, key, keyframes) => {
+    const propertiesSectionKeyframeSetEventBPMValue = (event, key, keyframes) => {
         const bpm = event.target.value;
         propertiesSectionSetValue(Math.trunc(($SaveState.chart.sampleRate * 60) / bpm), key, keyframes);
     };
@@ -172,28 +179,28 @@ Need to just patch the LTR style to allow the drawer to appear on the right of t
                 <!-- Section -->
                 <!-- Allow editing the section's properties -->
                 <Textfield style="width:100%" variant="filled" type="text"
-                    value={propertiesSectionGetValue("name", Application.state.timeline.reactive.selectedKeyframes)}
-                    oninput={(event) => propertiesSectionSetEventValue(event, "name", Application.state.timeline.reactive.selectedKeyframes)}
+                    value={propertiesSectionKeyframeGetValue("name", Application.state.timeline.reactive.selectedKeyframes)}
+                    oninput={(event) => propertiesSectionKeyframeSetEventValue(event, "name", Application.state.timeline.reactive.selectedKeyframes)}
                     label="Name"
                 >{#snippet helper()}
                     <HelperText>Custom name for this section.</HelperText>
                 {/snippet}</Textfield>
                 <Textfield style="width:100%" variant="filled" type="number"
-                    value={propertiesSectionGetBPMNumber("samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
-                    oninput={(event) => propertiesSectionSetEventBPMValue(event, "samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
+                    value={propertiesSectionKeyframeGetBPMNumber("samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
+                    oninput={(event) => propertiesSectionKeyframeSetEventBPMValue(event, "samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
                     label="BPM"
                 >{#snippet helper()}
                     <HelperText>The BPM (beats per minute) for this section onwards.</HelperText>
                 {/snippet}</Textfield>
                 <Textfield style="width:100%" variant="filled" type="number"
-                    value={propertiesSectionGetValueNumber("beatsPerMeasure", Application.state.timeline.reactive.selectedKeyframes)}
-                    oninput={(event) => propertiesSectionSetEventValue(event, "beatsPerMeasure", Application.state.timeline.reactive.selectedKeyframes)}
+                    value={propertiesSectionKeyframeGetValueNumber("beatsPerMeasure", Application.state.timeline.reactive.selectedKeyframes)}
+                    oninput={(event) => propertiesSectionKeyframeSetEventValue(event, "beatsPerMeasure", Application.state.timeline.reactive.selectedKeyframes)}
                     label="Beats per Measure"
                 >{#snippet helper()}
                     <HelperText>How many beats are in a measure during this section. All in-game songs use 4 beats per measure.</HelperText>
                 {/snippet}</Textfield>
                 {#if Application.state.timeline.reactive.selectedKeyframes.length === 1}
-                    <Button style="width:100%" touch variant="raised" onclick={() => propertiesOpenSectionFromKeyframe(Application.state.timeline.reactive.selectedKeyframes[0])}>
+                    <Button style="width:100%" touch variant="raised" onclick={() => propertiesSectionKeyframeOpenSection(Application.state.timeline.reactive.selectedKeyframes[0])}>
                         <Label>Open Timeline</Label>
                     </Button>
                 {/if}
@@ -302,7 +309,7 @@ Need to just patch the LTR style to allow the drawer to appear on the right of t
                 <Title>Sections</Title>
                 <Subtitle>Click on one of your sections to edit the notes inside.</Subtitle>
                 {#each $SaveState.chart.sections as section}
-                    <Button style="width:100%" touch variant="raised" onclick={() => propertiesOpenSection(section)}>
+                    <Button style="width:100%" touch variant="raised" onclick={() => propertiesSectionsOpenSection(section)}>
                         <Label>{section.name}</Label>
                     </Button>
                 {/each}
@@ -310,7 +317,7 @@ Need to just patch the LTR style to allow the drawer to appear on the right of t
             {:else if sectionSelected}
                 <!-- Section -->
                 <!-- We are editing the notes of this section -->
-                <Button style="width:100%" touch variant="raised" onclick={() => propertiesExitSection()}>
+                <Button style="width:100%" touch variant="raised" onclick={() => propertiesSectionExitSection()}>
                     <Label>Exit Timeline</Label>
                 </Button>
                 <hr>
