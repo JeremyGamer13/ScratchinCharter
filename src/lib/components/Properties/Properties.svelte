@@ -162,7 +162,7 @@
             {/if}
         </Subtitle>
     </Header>
-    <Content dir="ltr">
+    <Content dir="ltr" class="app-properties-content">
         {#if Application.state.appLoaded}
             <!-- keyframe -->
             {#if sectionKeyframeSelected}
@@ -185,9 +185,9 @@
                 <Textfield style="width:100%" variant="filled" type="number"
                     value={propertiesSectionGetValueNumber("beatsPerMeasure", Application.state.timeline.reactive.selectedKeyframes)}
                     oninput={(event) => propertiesSectionSetEventValue(event, "beatsPerMeasure", Application.state.timeline.reactive.selectedKeyframes)}
-                    label="beatsPerMeasure"
+                    label="Beats per Measure"
                 >{#snippet helper()}
-                    <HelperText>beatsPerMeasure</HelperText>
+                    <HelperText>How many beats are in a measure during this section. All in-game songs use 4 beats per measure.</HelperText>
                 {/snippet}</Textfield>
                 {#if Application.state.timeline.reactive.selectedKeyframes.length === 1}
                     <Button style="width:100%" touch variant="raised" onclick={() => propertiesOpenSectionFromKeyframe(Application.state.timeline.reactive.selectedKeyframes[0])}>
@@ -196,6 +196,25 @@
                 {/if}
             {:else if noteSelected}
                 <!-- Note -->
+                {#if Application.state.timeline.reactive.selectedKeyframes.length === 1}
+                    <p>TODO: Payload editing</p>
+                    <!-- TODO: Add payload type switcher (including custom types like LineType, VoiceClips) -->
+                {:else}
+                    <!-- NOTE: Might be possible, but only between notes of the same track & type.
+                    Or maybe we just fallback to text only in that case. -->
+                    <Subtitle>Can only edit the payload of 1 note at a time</Subtitle>
+                {/if}
+                <hr>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>
+                        Delete
+                        {#if Application.state.timeline.reactive.selectedKeyframes.length === 1}
+                            note
+                        {:else}
+                            notes
+                        {/if}
+                    </Label>
+                </Button>
             <!-- rows -->
             {:else if trackSelected}
                 <!-- Track -->
@@ -242,20 +261,19 @@
                 </Button>
             {:else if sectionsSelected}
                 <!-- Sections -->
-                <p>
+                <Title>Info</Title>
+                <Subtitle>
                     Each section marks a shift in the song.
                     <br>
-                    <!-- TODO: Its beats per measure not beats per measurement -->
                     You can change BPM at any section, and also how many
-                    beats are in a measurement.
+                    beats are in a measure.
                     <br>
                     <br>
                     You can also name each section for organization.
                     <br>
                     <br>
                     The first section is required.
-                </p>
-                <hr>
+                </Subtitle>
                 <Button style="width:100%" touch variant="raised" onclick={propertiesSectionsSelectFirst}>
                     <Label>Select first section</Label>
                 </Button>
@@ -277,6 +295,36 @@
                 <Button style="width:100%" touch variant="raised" onclick={() => propertiesExitSection()}>
                     <Label>Exit Timeline</Label>
                 </Button>
+                <hr>
+                <Title>Generation</Title>
+                <Subtitle>
+                    Generates/fills certain tracks based on the notes placed in other tracks.
+                    <br>
+                    See the editor guide for more information on how this works.
+                </Subtitle>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Generate Perfect Blue Track</Label>
+                </Button>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Generate Pink Warning Track</Label>
+                </Button>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Generate Next Line Track</Label>
+                </Button>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Generate Player Tracks</Label>
+                </Button>
+                <hr>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Undo Tracks Organization</Label>
+                </Button>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Add Default Tracks</Label>
+                </Button>
+                <hr>
+                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                    <Label>Delete All Tracks</Label>
+                </Button>
             {:else}
                 <!-- Project -->
                 <Textfield style="width:100%" variant="filled"
@@ -297,10 +345,17 @@
                     bind:value={$SaveState.chart.sampleRate}
                     label="Sample rate"
                 ></Textfield>
-                <Button style="width:100%" touch variant="raised" onclick={propertiesProjectConvertRate}>
+                <Button style="width:100%" touch variant="raised" onclick={propertiesProjectConvertRate}> <!-- TODO: Add this -->
                     <Label>Convert Sample rate...</Label>
                 </Button>
             {/if}
         {/if}
     </Content>
 </Drawer>
+
+<style>
+    :global(.app-properties-content .mdc-drawer__title),
+    :global(.app-properties-content .mdc-drawer__subtitle) {
+        padding: 0 8px;
+    }
+</style>
