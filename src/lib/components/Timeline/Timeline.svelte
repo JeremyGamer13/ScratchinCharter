@@ -3,7 +3,7 @@
     import * as stores from 'svelte/store';
     import { browser } from "$app/environment";
     import { onMount, onDestroy } from "svelte";
-    
+
     import { EventEmitter } from "events";
     import Tooltip, { Wrapper } from '@smui/tooltip';
     import Button, { Label } from '@smui/button';
@@ -16,6 +16,7 @@
     import Application from "$lib/resources/app.svelte";
     import TimelineLibrary from "$lib/components/Timeline/TimelineLibrary.js";
     import TimelineState from "$lib/state/timeline.svelte.js";
+    import {makeFieldSubmitListener} from "$lib/resources/field-submit.js";
     
     let props = $props();
     let container = null;
@@ -191,15 +192,19 @@
 </script>
 
 {#if Application.state.appLoaded}
-    <Menu bind:this={buttonMenuPlaybackSpeed}>
+    <Menu bind:this={buttonMenuPlaybackSpeed} style="padding:0 16px">
         <Title>Playback Speed</Title>
         <Textfield
             value={appWavesurferSpeed}
             variant="outlined"
             label="Playback Speed"
             suffix="x"
-            oninput={(event) => appWavesurferSetSpeed(event.target.value)}
+            onkeydown={makeFieldSubmitListener((event) => appWavesurferSetSpeed(event.target.value))}
+            onchange={(event) => appWavesurferSetSpeed(event.target.value)}
+            onblur={(event) => appWavesurferSetSpeed(event.detail.target.value)}
         />
+        <!-- TODO: Need to figure out how to access `instance` in Slider so it can be
+        updated when the value updates. This probably needs an SMUI fork entirely honestly. -->
         <Slider
             min={0.25}
             max={2}

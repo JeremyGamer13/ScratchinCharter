@@ -18,6 +18,7 @@
     import SaveStateLarge from "$lib/stores/state-large";
     import SMUIPrompts from '$lib/resources/smui-prompts';
     import MelodiiChart from "$lib/resources/chart";
+    import {makeFieldSubmitListener} from "$lib/resources/field-submit.js";
 
     // keyframe -->
     let sectionKeyframeSelected = $derived(Application.state.timelineMode === "sections" ?
@@ -184,7 +185,8 @@
         Application.state.timeline.melodii.applyChartChanges();
     };
     const propertiesSectionKeyframeSetEventValue = (event, key, keyframes) => {
-        propertiesSectionSetValue(event.target.value, key, keyframes);
+        const value = event.type === "blur" ? event.detail.target.value : event.target.value;
+        propertiesSectionKeyframeSetValue(value, key, keyframes);
     };
     const propertiesSectionKeyframeGetBPMNumber = (key, keyframes = []) => {
         const values = keyframes.map(keyframe => keyframe[key]);
@@ -192,8 +194,8 @@
         return ($SaveState.chart.sampleRate * 60) / samplesPerBeat;
     };
     const propertiesSectionKeyframeSetEventBPMValue = (event, key, keyframes) => {
-        const bpm = event.target.value;
-        propertiesSectionSetValue(Math.trunc(($SaveState.chart.sampleRate * 60) / bpm), key, keyframes);
+        const bpm = event.type === "blur" ? event.detail.target.value : event.target.value;
+        propertiesSectionKeyframeSetValue(Math.trunc(($SaveState.chart.sampleRate * 60) / bpm), key, keyframes);
     };
 </script>
 
@@ -230,21 +232,27 @@ Need to just patch the LTR style to allow the drawer to appear on the right of t
                 <!-- Allow editing the section's properties -->
                 <Textfield style="width:100%" variant="filled" type="text"
                     value={propertiesSectionKeyframeGetValue("name", Application.state.timeline.reactive.selectedKeyframes)}
-                    oninput={(event) => propertiesSectionKeyframeSetEventValue(event, "name", Application.state.timeline.reactive.selectedKeyframes)}
+                    onkeydown={makeFieldSubmitListener((event) => propertiesSectionKeyframeSetEventValue(event, "name", Application.state.timeline.reactive.selectedKeyframes))}
+                    onchange={(event) => propertiesSectionKeyframeSetEventValue(event, "name", Application.state.timeline.reactive.selectedKeyframes)}
+                    onblur={(event) => propertiesSectionKeyframeSetEventValue(event, "name", Application.state.timeline.reactive.selectedKeyframes)}
                     label="Name"
                 >{#snippet helper()}
                     <HelperText>Custom name for this section.</HelperText>
                 {/snippet}</Textfield>
                 <Textfield style="width:100%" variant="filled" type="number"
                     value={propertiesSectionKeyframeGetBPMNumber("samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
-                    oninput={(event) => propertiesSectionKeyframeSetEventBPMValue(event, "samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
+                    onkeydown={makeFieldSubmitListener((event) => propertiesSectionKeyframeSetEventBPMValue(event, "samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes))}
+                    onchange={(event) => propertiesSectionKeyframeSetEventBPMValue(event, "samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
+                    onblur={(event) => propertiesSectionKeyframeSetEventBPMValue(event, "samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
                     label="BPM"
                 >{#snippet helper()}
                     <HelperText>The BPM (beats per minute) for this section onwards.</HelperText>
                 {/snippet}</Textfield>
                 <Textfield style="width:100%" variant="filled" type="number"
                     value={propertiesSectionKeyframeGetValueNumber("beatsPerMeasure", Application.state.timeline.reactive.selectedKeyframes)}
-                    oninput={(event) => propertiesSectionKeyframeSetEventValue(event, "beatsPerMeasure", Application.state.timeline.reactive.selectedKeyframes)}
+                    onkeydown={makeFieldSubmitListener((event) => propertiesSectionKeyframeSetEventValue(event, "beatsPerMeasure", Application.state.timeline.reactive.selectedKeyframes))}
+                    onchange={(event) => propertiesSectionKeyframeSetEventValue(event, "beatsPerMeasure", Application.state.timeline.reactive.selectedKeyframes)}
+                    onblur={(event) => propertiesSectionKeyframeSetEventValue(event, "beatsPerMeasure", Application.state.timeline.reactive.selectedKeyframes)}
                     label="Beats per Measure"
                 >{#snippet helper()}
                     <HelperText>How many beats are in a measure during this section. All in-game songs use 4 beats per measure.</HelperText>
