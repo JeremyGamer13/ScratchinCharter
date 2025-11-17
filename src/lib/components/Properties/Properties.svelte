@@ -9,6 +9,7 @@
     import Textfield from '@smui/textfield';
     import Icon from '@smui/textfield/icon';
     import Button, { Label } from '@smui/button';
+    import Select, { Option } from '@smui/select';
     import HelperText from '@smui/textfield/helper-text';
     
     import Application from "$lib/resources/app.svelte";
@@ -197,8 +198,23 @@
             {:else if noteSelected}
                 <!-- Note -->
                 {#if Application.state.timeline.reactive.selectedKeyframes.length === 1}
+                    <Title>Payload</Title>
+                    <Subtitle>
+                        Payloads allow notes to contain extra information.
+                        This is needed for some tracks, like VoiceClips and LineStart.
+                    </Subtitle>
+                    <Select variant="outlined" label="Payload Type">
+                        <Option value="text">Text</Option>
+                        <Option value="float">Float</Option>
+                        <Option value="int">Integer</Option>
+                        <Option value="object">Object</Option>
+                    </Select>
                     <p>TODO: Payload editing</p>
-                    <!-- TODO: Add payload type switcher (including custom types like LineType, VoiceClips) -->
+                    <!-- TODO: Add payload editor for text -->
+                    <!-- TODO: Add payload editor for float -->
+                    <!-- TODO: Add payload editor for integer -->
+                    <!-- TODO: Add payload editor for object using monaco -->
+                    <!-- TODO: Add payload editor for VoiceClips using objects -->
                 {:else}
                     <!-- NOTE: Might be possible, but only between notes of the same track & type.
                     Or maybe we just fallback to text only in that case. -->
