@@ -148,6 +148,7 @@
         Application.state.timeline.melodii.applyChartChanges();
         Application.switchTimelineToSection(section);
     };
+    // track
 
     // keyframe
     // section keyframe
@@ -197,6 +198,7 @@
         const bpm = event.type === "blur" ? event.detail.target.value : event.target.value;
         propertiesSectionKeyframeSetValue(Math.trunc(($SaveState.chart.sampleRate * 60) / bpm), key, keyframes);
     };
+    // note
 </script>
 
 <!-- TODO: The RTL -> LTR hack is causing some buggy UI, especially with Select elements.
@@ -272,14 +274,12 @@ Need to just patch the LTR style to allow the drawer to appear on the right of t
                     </Subtitle>
                     <Select variant="outlined" label="Payload Type">
                         <Option value="text">Text</Option>
-                        <Option value="float">Float</Option>
-                        <Option value="int">Integer</Option>
+                        <Option value="number">Number</Option>
                         <Option value="object">Object</Option>
                     </Select>
                     <p>TODO: Payload editing</p>
                     <!-- TODO: Add payload editor for text -->
-                    <!-- TODO: Add payload editor for float -->
-                    <!-- TODO: Add payload editor for integer -->
+                    <!-- TODO: Add payload editor for number -->
                     <!-- TODO: Add payload editor for object using monaco -->
                     <!-- TODO: Add payload editor for VoiceClips using objects -->
                 {:else}
