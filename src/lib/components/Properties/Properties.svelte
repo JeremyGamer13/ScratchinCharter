@@ -183,11 +183,11 @@
                     <HelperText>The BPM (beats per minute) for this section onwards.</HelperText>
                 {/snippet}</Textfield>
                 <Textfield style="width:100%" variant="filled" type="number"
-                    value={propertiesSectionGetValueNumber("beatsPerMeasurement", Application.state.timeline.reactive.selectedKeyframes)}
-                    oninput={(event) => propertiesSectionSetEventValue(event, "beatsPerMeasurement", Application.state.timeline.reactive.selectedKeyframes)}
-                    label="beatsPerMeasurement"
+                    value={propertiesSectionGetValueNumber("beatsPerMeasure", Application.state.timeline.reactive.selectedKeyframes)}
+                    oninput={(event) => propertiesSectionSetEventValue(event, "beatsPerMeasure", Application.state.timeline.reactive.selectedKeyframes)}
+                    label="beatsPerMeasure"
                 >{#snippet helper()}
-                    <HelperText>beatsPerMeasurement</HelperText>
+                    <HelperText>beatsPerMeasure</HelperText>
                 {/snippet}</Textfield>
                 {#if Application.state.timeline.reactive.selectedKeyframes.length === 1}
                     <Button style="width:100%" touch variant="raised" onclick={() => propertiesOpenSectionFromKeyframe(Application.state.timeline.reactive.selectedKeyframes[0])}>

@@ -163,7 +163,7 @@ class Application {
         state.timeline.reactive.addTypeLabel = "note";
         state.timelineSection = section;
         state.timelineMode = "section";
-        state.timeline.melodii.setTimelineForSection(section.beatsPerMeasurement);
+        state.timeline.melodii.setTimelineForSection(section.beatsPerMeasure);
         this.validateChart();
         this.loadChartIntoTimeline();
     }

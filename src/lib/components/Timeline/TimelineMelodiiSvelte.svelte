@@ -101,11 +101,11 @@
             this.timelineInstance.timeline._renderKeyframe = this.timelineInstance.original._renderKeyframe;
             this.timelineInstance.timeline._formatUnitsText = this.timelineInstance.original._formatUnitsText;
         }
-        setTimelineForSection(beatsPerMeasurement) {
+        setTimelineForSection(beatsPerMeasure) {
             const options = this.timelineInstance.timeline.getOptions();
-            options.snapStep = 1000 / beatsPerMeasurement;
-            options.stepPx = 1000 / (beatsPerMeasurement * 2);
-            options.stepSmallPx = 1000 / (beatsPerMeasurement * 4);
+            options.snapStep = 1000 / beatsPerMeasure;
+            options.stepPx = 1000 / (beatsPerMeasure * 2);
+            options.stepSmallPx = 1000 / (beatsPerMeasure * 4);
             options.stepVal = 1000;
             this.timelineInstance.timeline.setOptions(options);
 
@@ -139,7 +139,7 @@
             const previousSection = previousSections[0] ? previousSections[previousSections.length - 1] : null;
             if (previousSection) {
                 newSection.samplesPerBeat = previousSection.samplesPerBeat;
-                newSection.beatsPerMeasurement = previousSection.beatsPerMeasurement;
+                newSection.beatsPerMeasure = previousSection.beatsPerMeasure;
             }
 
             // Update chart

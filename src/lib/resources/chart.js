@@ -18,7 +18,7 @@ class MelodiiChart {
             "name": "Section",
             "start": 0,
             "samplesPerBeat": 22050,
-            "beatsPerMeasurement": 4
+            "beatsPerMeasure": 4
         };
     }
 
@@ -104,7 +104,7 @@ class MelodiiChart {
             val: (section.start / chart.sampleRate) * 1000,
             name: section.name,
             samplesPerBeat: section.samplesPerBeat,
-            beatsPerMeasurement: section.beatsPerMeasurement,
+            beatsPerMeasure: section.beatsPerMeasure,
         }));
         if (!keyframes[0]) {
             const firstSection = this.defaultSection();
@@ -115,7 +115,7 @@ class MelodiiChart {
                 val: 0,
                 name: firstSection.name,
                 samplesPerBeat: firstSection.samplesPerBeat,
-                beatsPerMeasurement: firstSection.beatsPerMeasurement,
+                beatsPerMeasure: firstSection.beatsPerMeasure,
             };
         }
         // make the first keyframe not touchable
@@ -202,7 +202,7 @@ class MelodiiChart {
             "name": keyframe.name,
             "start": Math.trunc((keyframe.val / 1000) * sampleRate),
             "samplesPerBeat": keyframe.samplesPerBeat,
-            "beatsPerMeasurement": keyframe.beatsPerMeasurement
+            "beatsPerMeasure": keyframe.beatsPerMeasure
         }));
         return sections;
     }
