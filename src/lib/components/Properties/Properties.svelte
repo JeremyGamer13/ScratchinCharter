@@ -78,6 +78,56 @@
         Application.state.timeline.melodii.applyChartChanges();
         Application.switchTimelineToSections();
     };
+    const propertiesSectionGeneratePinkWarning = () => {
+        Application.state.timeline.melodii.applyChartChanges();
+        // check for LineStart & add PinkWarning track if missing
+        if (!Object.prototype.hasOwnProperty.call($SaveState.chart.tracks, "LineStart"))
+            return SMUIPrompts.alert("No LineStart track exists.");
+        if (!Object.prototype.hasOwnProperty.call($SaveState.chart.tracks, "PinkWarning"))
+            $SaveState.chart.tracks["PinkWarning"] = [];
+        const pinkWarningTrack = $SaveState.chart.tracks["PinkWarning"];
+        const lineStartTrack = $SaveState.chart.tracks["LineStart"];
+
+        // PinkWarnings should be placed half a beat before a new line
+        const sampleRate = $SaveState.chart.sampleRate;
+        const section = Application.state.timelineSection;
+        for (const keyframe of lineStartTrack) {
+            const beat = MelodiiChart.secondsToBeat((keyframe[0] - section.start) / sampleRate, sampleRate, section.samplesPerBeat);
+            const newSampleTime = (MelodiiChart.beatToSeconds(beat - 0.5, sampleRate, section.samplesPerBeat) * sampleRate) + section.start;
+            const newNote = [newSampleTime, newSampleTime];
+            pinkWarningTrack.push(newNote);
+        }
+        Application.state.timeline.melodii.reloadChart();
+    };
+    const propertiesSectionGeneratePerfectBlue = () => {
+        Application.state.timeline.melodii.applyChartChanges();
+        // check for button tracks & add Perfect_Blue track if missing
+        const buttonTracks = [
+            "A_note_Player",
+            "B_note_Player",
+            "X_note_Player",
+            "Y_note_Player",
+            "L_note_Player",
+            "R_note_Player",
+            "Up_note_Player",
+            "Left_note_Player",
+            "Down_note_Player",
+            "Right_note_Player",
+        ];
+        if (!buttonTracks.some((trackName) => Object.prototype.hasOwnProperty.call($SaveState.chart.tracks, trackName)))
+            return SMUIPrompts.alert("None of the player button tracks exist.");
+        if (!Object.prototype.hasOwnProperty.call($SaveState.chart.tracks, "Perfect_Blue"))
+            $SaveState.chart.tracks["Perfect_Blue"] = [];
+        // Perfect_Blue is just all player button tracks merged
+        const sampleRate = $SaveState.chart.sampleRate;
+        const section = Application.state.timelineSection;
+        for (const trackName of buttonTracks) {
+            if (!$SaveState.chart.tracks[trackName]) continue;
+            const perfectBlueTrack = $SaveState.chart.tracks["Perfect_Blue"];
+            $SaveState.chart.tracks["Perfect_Blue"] = perfectBlueTrack.concat($SaveState.chart.tracks[trackName]);
+        }
+        Application.state.timeline.melodii.reloadChart();
+    };
 
     // rows
     // sections
@@ -327,10 +377,10 @@ Need to just patch the LTR style to allow the drawer to appear on the right of t
                     <br>
                     See the editor guide for more information on how this works.
                 </Subtitle>
-                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                <Button style="width:100%" touch variant="raised" onclick={() => propertiesSectionGeneratePerfectBlue()}>
                     <Label>Generate Perfect Blue Track</Label>
                 </Button>
-                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                <Button style="width:100%" touch variant="raised" onclick={() => propertiesSectionGeneratePinkWarning()}>
                     <Label>Generate Pink Warning Track</Label>
                 </Button>
                 <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->

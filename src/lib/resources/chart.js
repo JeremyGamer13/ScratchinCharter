@@ -10,7 +10,39 @@ class MelodiiChart {
             "sections": [
                 this.defaultSection(),
             ],
-            "tracks": {}
+            "tracks": {
+                "LineStart": [],
+                "LineNext": [],
+                "LineEnd": [],
+                "LineStartPlayer": [],
+                "LineNextPlayer": [],
+                "LineEndPlayer": [],
+                "Perfect_Blue": [],
+                "PinkWarning": [],
+                "EndSong": [],
+                "VoiceClips": [],
+                "VoiceClipsPlayer": [],
+                "A_note": [],
+                "B_note": [],
+                "X_note": [],
+                "Y_note": [],
+                "L_note": [],
+                "R_note": [],
+                "Up_note": [],
+                "Left_note": [],
+                "Down_note": [],
+                "Right_note": [],
+                "A_note_Player": [],
+                "B_note_Player": [],
+                "X_note_Player": [],
+                "Y_note_Player": [],
+                "L_note_Player": [],
+                "R_note_Player": [],
+                "Up_note_Player": [],
+                "Left_note_Player": [],
+                "Down_note_Player": [],
+                "Right_note_Player": []
+            }
         };
     }
     static defaultSection() {
@@ -150,8 +182,8 @@ class MelodiiChart {
                         _row: trackKey,
                         group: `justtoseparatekeyframes${Date.now()}${Math.random()}${Math.random()}${Math.random()}${Math.random()}`,
                         note,
-                        // TODO: Were samples placed based on samples per beat or are they exact timings in the song?
-                        // This currently assumes exact song timings. Need to examine built-in songs to tell later.
+                        // NOTE: This currently assumes exact song timings. The in-game songs seem really weird with timing, not sure
+                        // if I will ever figure out myself exactly how the timings of notes works in Koreographer.
                         val: this.secondsToBeat((note[0] - section.start) / sampleRate, sampleRate, section.samplesPerBeat) * 1000,
                         end: this.secondsToBeat((note[1] - section.start) / sampleRate, sampleRate, section.samplesPerBeat) * 1000,
                         payload: note[2],

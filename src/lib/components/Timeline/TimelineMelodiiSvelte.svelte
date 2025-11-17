@@ -147,11 +147,13 @@
             this.reloadChart();
         }
         addNoteAtCursor(row) {
-            const rowToUse = row
+            // dont use `chart` variable yet since this is before the chart gets updated by applyChartChanges
+            let rowToUse = row
                 || Application.state.timeline.reactive.selectedRow
                 || Application.state.timeline.reactive.selectedRowLast
                 || Object.keys($SaveState.chart.tracks).at(0);
             if (!rowToUse) throw new Error("No row exists");
+            if (!$SaveState.chart.tracks[rowToUse]) rowToUse = Object.keys($SaveState.chart.tracks).at(0);
 
             this.applyChartChanges();
             const chart = $SaveState.chart;
