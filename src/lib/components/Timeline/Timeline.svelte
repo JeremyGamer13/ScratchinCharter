@@ -70,6 +70,14 @@
         }
         return null;
     };
+    const outlineSelectRow = (row) => {
+        if (row.trackHelper) {
+            selectedRow = "";
+            return;
+        }
+        selectedRow = row.title;
+        selectedRowLast = row.title;
+    };
     const outlineTryDeselectRow = (event) => {
         if (!outline) return;
         if (!outline.contains(event.target)) return;
@@ -264,7 +272,7 @@
                             id={`timeline-outlinebutton${id}${row.title}`}
                             class="outline-node"
                             variant={row.title === selectedRow ? "unelevated" : null}
-                            onclick={() => { selectedRow = row.title; selectedRowLast = row.title; }}
+                            onclick={() => outlineSelectRow(row)}
                             style={`justify-content: flex-start;`
                                 + `max-height:${(row.style ? row.style.height : 0) || (outlineTimelineOptions.rowsStyle ? outlineTimelineOptions.rowsStyle.height : 0)}px;`
                                 + `min-height:${(row.style ? row.style.height : 0) || (outlineTimelineOptions.rowsStyle ? outlineTimelineOptions.rowsStyle.height : 0)}px;`

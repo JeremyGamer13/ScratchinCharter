@@ -149,6 +149,15 @@
         Application.switchTimelineToSection(section);
     };
     // track
+    const propertiesTrackMove = (up) => {
+        const rowName = Application.state.timeline.reactive.selectedRow;
+        console.log(rowName, up);
+    };
+    const propertiesTrackInsert = (fromRow, up) => {
+        if (!$SaveState.chart.tracks[fromRow]) fromRow = Object.keys($SaveState.chart.tracks).at(up ? 0 : -1);
+        if (!fromRow) throw new Error("Expected rows to exist in chart");
+        console.log(fromRow);
+    };
 
     // keyframe
     // section keyframe
@@ -277,7 +286,17 @@ Need to just patch the LTR style to allow the drawer to appear on the right of t
                         <Option value="number">Number</Option>
                         <Option value="object">Object</Option>
                     </Select>
+
                     <p>TODO: Payload editing</p>
+                    <Textfield style="width:100%" variant="filled" type="text"
+                        value={propertiesSectionKeyframeGetBPMNumber("samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
+                        onkeydown={makeFieldSubmitListener((event) => propertiesSectionKeyframeSetEventBPMValue(event, "samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes))}
+                        onchange={(event) => propertiesSectionKeyframeSetEventBPMValue(event, "samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
+                        onblur={(event) => propertiesSectionKeyframeSetEventBPMValue(event, "samplesPerBeat", Application.state.timeline.reactive.selectedKeyframes)}
+                        label="BPM"
+                    >{#snippet helper()}
+                        <HelperText>The BPM (beats per minute) for this section onwards.</HelperText>
+                    {/snippet}</Textfield>
                     <!-- TODO: Add payload editor for text -->
                     <!-- TODO: Add payload editor for number -->
                     <!-- TODO: Add payload editor for object using monaco -->
@@ -302,11 +321,17 @@ Need to just patch the LTR style to allow the drawer to appear on the right of t
             {:else if trackSelected}
                 <!-- Track -->
                 <!-- TODO: Add rename field -->
-                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                <Button style="width:100%" touch variant="raised" onclick={() => propertiesTrackMove(true)}>
                     <Label>Move track up</Label>
                 </Button>
-                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                <Button style="width:100%" touch variant="raised" onclick={() => propertiesTrackMove(false)}>
                     <Label>Move track down</Label>
+                </Button>
+                <Button style="width:100%" touch variant="raised" onclick={() => propertiesTrackInsert(Application.state.timeline.reactive.selectedRow, true)}>
+                    <Label>Insert above</Label>
+                </Button>
+                <Button style="width:100%" touch variant="raised" onclick={() => propertiesTrackInsert(Application.state.timeline.reactive.selectedRow, false)}>
+                    <Label>Insert below</Label>
                 </Button>
                 <hr>
                 <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
@@ -375,6 +400,9 @@ Need to just patch the LTR style to allow the drawer to appear on the right of t
             {:else if sectionSelected}
                 <!-- Section -->
                 <!-- We are editing the notes of this section -->
+                <Button style="width:100%" touch variant="raised" onclick={() => propertiesTrackInsert(null, false)}>
+                    <Label>Add Track</Label>
+                </Button>
                 <Button style="width:100%" touch variant="raised" onclick={() => propertiesSectionExitSection()}>
                     <Label>Exit Timeline</Label>
                 </Button>
