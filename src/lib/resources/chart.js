@@ -54,6 +54,19 @@ class MelodiiChart {
         };
     }
 
+    static makeUniqueTrackNameFromChart(chart) {
+        let trackCount = Object.keys(chart.tracks).length;
+        let idx = 1;
+
+        // first try NewTrack${trackCount + 1}
+        if (!chart.tracks[`NewTrack${trackCount + 1}`]) return `Track${trackCount + 1}`;
+        
+        while (chart.tracks[`NewTrack${trackCount + 1}_${idx}`]) {
+            idx += 1;
+        }
+        return `NewTrack${trackCount + 1}_${idx}`;
+    }
+
     static isValidVersion(version) {
         return Number.isSafeInteger(version) && version >= 0;
     }
