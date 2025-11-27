@@ -75,6 +75,13 @@
         throw new Error("Not implemented");
     };
     // section
+    const propertiesSectionTrackAdd = () => {
+        const tracks = $SaveState.chart.tracks;
+        const trackName = MelodiiChart.makeUniqueTrackNameFromChart($SaveState.chart);
+        tracks[trackName] = [];
+        
+        Application.state.timeline.melodii.reloadChart();
+    };
     const propertiesSectionExitSection = () => {
         Application.state.timeline.melodii.applyChartChanges();
         Application.switchTimelineToSections();
@@ -151,12 +158,63 @@
     // track
     const propertiesTrackMove = (up) => {
         const rowName = Application.state.timeline.reactive.selectedRow;
-        console.log(rowName, up);
+        const keys = Object.keys($SaveState.chart.tracks);
+        if (keys.length <= 1) return;
+        if (keys.at(0) === rowName && up) return;
+        if (keys.at(-1) === rowName && !up) return;
+
+        // go through each key & when we get to the target, either swap with
+        // 1 index above or below, then break
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            if (key !== rowName) continue;
+
+            if (up) { // move -1
+                const swap = keys[i - 1];
+                keys[i - 1] = key;
+                keys[i] = swap;
+            } else { // move +1
+                const swap = keys[i + 1];
+                keys[i + 1] = key;
+                keys[i] = swap;
+            }
+            break;
+        }
+        
+        // with the new key order, make a new object with the tracks
+        const newTracks = {};
+        for (const key of keys) {
+            const value = $SaveState.chart.tracks[key];
+            newTracks[key] = value;
+        }
+
+        // update the chart to use the new tracks
+        $SaveState.chart.tracks = newTracks;
+        Application.state.timeline.melodii.reloadChart();
     };
     const propertiesTrackInsert = (fromRow, up) => {
         if (!$SaveState.chart.tracks[fromRow]) fromRow = Object.keys($SaveState.chart.tracks).at(up ? 0 : -1);
         if (!fromRow) throw new Error("Expected rows to exist in chart");
-        console.log(fromRow);
+        const trackName = MelodiiChart.makeUniqueTrackNameFromChart($SaveState.chart);
+        
+        // rebuild tracks but with a new key appended or prepended at fromRow's index
+        // and that new key is given the value of a new track
+        const keys = Object.keys($SaveState.chart.tracks);
+        const fromIndex = keys.indexOf(fromRow);
+        if (fromIndex === -1) throw new Error("fromRow is not present in chart");
+        keys.splice(fromIndex + (up ? 0 : 1), 0, trackName);
+        
+        // with the new key order, make a new object with the tracks
+        const newTracks = {};
+        for (const key of keys) {
+            const value = key === trackName ? []
+                : $SaveState.chart.tracks[key];
+            newTracks[key] = value;
+        }
+        
+        // update the chart to use the new tracks
+        $SaveState.chart.tracks = newTracks;
+        Application.state.timeline.melodii.reloadChart();
     };
 
     // keyframe
@@ -400,7 +458,7 @@ Need to just patch the LTR style to allow the drawer to appear on the right of t
             {:else if sectionSelected}
                 <!-- Section -->
                 <!-- We are editing the notes of this section -->
-                <Button style="width:100%" touch variant="raised" onclick={() => propertiesTrackInsert(null, false)}>
+                <Button style="width:100%" touch variant="raised" onclick={() => propertiesSectionTrackAdd()}>
                     <Label>Add Track</Label>
                 </Button>
                 <Button style="width:100%" touch variant="raised" onclick={() => propertiesSectionExitSection()}>
