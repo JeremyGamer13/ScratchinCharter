@@ -365,7 +365,7 @@ Need to just patch the LTR style to allow the drawer to appear on the right of t
                     <Subtitle>Can only edit the payload of 1 note at a time</Subtitle>
                 {/if}
                 <hr>
-                <Button style="width:100%" touch variant="raised"> <!-- TODO: Add this -->
+                <Button style="width:100%" touch variant="raised" onclick={() => Application.state.timeline.melodii.removeSelectedKeyframes()}>
                     <Label>
                         Delete
                         {#if Application.state.timeline.reactive.selectedKeyframes.length === 1}
