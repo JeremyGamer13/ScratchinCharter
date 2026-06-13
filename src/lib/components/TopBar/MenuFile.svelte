@@ -28,6 +28,9 @@
         Application.validateChart();
         location.reload();
     };
+    const projectOpen = async () => {};
+    const projectSave = async () => {};
+    const projectSaveFile = async () => {};
 
     const songImport = async () => {
         const fileData = await Application.askForSongBlob();
@@ -58,6 +61,10 @@
         await writable.write(chartJson);
         await writable.close();
     };
+
+    const importMenu = async () => {};
+
+    const exportMenu = async () => {};
 </script>
 
 <Button onclick={() => menu.setOpen(true)}>
@@ -68,19 +75,21 @@
         <Item onSMUIAction={projectNew}>
             <Text>New project...</Text>
         </Item>
+        <Item onSMUIAction={projectOpen}>
+            <Text>Open project...</Text>
+        </Item>
+        <Item onSMUIAction={projectSave}>
+            <Text>Save project to browser</Text>
+        </Item>
+        <Item onSMUIAction={projectSaveFile}>
+            <Text>Save project to file...</Text>
+        </Item>
         <Separator />
-        <Item onSMUIAction={chartImport}>
-            <Text>Import Chart (.json)</Text>
+        <Item onSMUIAction={importMenu}>
+            <Text>Import...</Text>
         </Item>
-        <Item onSMUIAction={songImport}>
-            <Text>Import Song (audio)</Text>
-        </Item>
-        <Item onSMUIAction={() => {}}>
-            <Text>Import Voices (folder with audio)</Text>
-        </Item>
-        <Separator />
-        <Item onSMUIAction={chartExport}>
-            <Text>Export Chart (.json)</Text>
+        <Item onSMUIAction={exportMenu}>
+            <Text>Export...</Text>
         </Item>
     </List>
 </Menu>

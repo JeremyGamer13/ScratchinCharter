@@ -494,11 +494,24 @@
                 </Button>
             {:else}
                 <!-- Project -->
+                <br /> <!-- weird spacing -->
+                <Select variant="outlined" label="Project Type" style="width:100%">
+                    <Option value="generic">Generic</Option>
+                    <Option value="scratchinchartingv2">Scratchin' Charting</Option>
+                </Select>
+                <hr>
                 <Textfield style="width:100%" variant="filled"
                     bind:value={$SaveState.chart.song}
                     label="Audio file"
                 >{#snippet helper()}
                     <HelperText>Path to the audio file in your Unity project.</HelperText>
+                {/snippet}</Textfield>
+                <Textfield style="width:100%" variant="filled" type="number"
+                    invalid={!MelodiiChart.isValidSampleRate($SaveState.chart.sampleRate)}
+                    bind:value={$SaveState.chart.sampleRate}
+                    label="Sample rate"
+                >{#snippet helper()}
+                    <HelperText>Must match the sample rate of the audio file exactly.</HelperText>
                 {/snippet}</Textfield>
                 <Textfield style="width:100%" variant="filled" type="number"
                     invalid={!MelodiiChart.isValidVersion($SaveState.chart.version)}
@@ -507,14 +520,6 @@
                 >{#snippet helper()}
                     <HelperText>Update this number to reset player high-scores & ranks for this chart.</HelperText>
                 {/snippet}</Textfield>
-                <Textfield style="width:100%" variant="filled" type="number" disabled={true}
-                    invalid={!MelodiiChart.isValidSampleRate($SaveState.chart.sampleRate)}
-                    bind:value={$SaveState.chart.sampleRate}
-                    label="Sample rate"
-                ></Textfield>
-                <Button style="width:100%" touch variant="raised" onclick={propertiesProjectConvertRate}> <!-- TODO: Add this -->
-                    <Label>Convert Sample rate...</Label>
-                </Button>
             {/if}
         {/if}
     </Content>
