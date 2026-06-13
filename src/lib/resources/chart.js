@@ -1,6 +1,10 @@
 import TimelineLibrary from "$lib/components/Timeline/TimelineLibrary.js";
 
 class MelodiiChart {
+    /**
+     * Returns a default MelodiiChart
+     * @returns {ScratchinCharting.MelodiiChart}
+     */
     static defaultChart() {
         return {
             "format": "1",
@@ -45,6 +49,10 @@ class MelodiiChart {
             }
         };
     }
+    /**
+     * Returns a default MelodiiChartSection
+     * @returns {ScratchinCharting.MelodiiChartSection}
+     */
     static defaultSection() {
         return {
             "name": "Section",
