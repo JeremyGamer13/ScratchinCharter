@@ -268,10 +268,8 @@
     // note
 </script>
 
-<!-- TODO: The RTL -> LTR hack is causing some buggy UI, especially with Select elements.
-Need to just patch the LTR style to allow the drawer to appear on the right of the page. -->
-<Drawer class="app-properties" variant={Application.state.appLoaded ? "dismissible" : null} dir="rtl" bind:open={$Settings.propertiesOpen}>
-    <Header dir="ltr">
+<Drawer class="app-properties" variant={Application.state.appLoaded ? "dismissible" : null} bind:open={$Settings.propertiesOpen}>
+    <Header>
         <Title>Properties</Title>
         <Subtitle>
             <!-- keyframe -->

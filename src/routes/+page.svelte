@@ -245,9 +245,22 @@
     :global(main .app-properties) {
         width: 25%;
         height: calc(100% - 48px);
+        left: initial !important;
+        right: 0 !important;
         
         border-top-left-radius: 0 !important;
         border-bottom-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+    }
+    /* NOTE: wacky css hacks to make mdc-drawer appear on the right instead */
+    :global(main .app-properties.mdc-drawer--animate),
+    :global(main .app-properties.mdc-drawer--closing) {
+        transform: translateX(100%) !important;
+    }
+    /* NOTE: this style is already a thing in mdc but we have to do it again with !important or it wont work because of the --animate override */
+    :global(main .app-properties.mdc-drawer--opening) {
+        transform: translateX(0%) !important;
     }
     :global(main .app-container .mdc-drawer.mdc-drawer--open:not(.mdc-drawer--closing) + .app-content) {
         margin-left: 0 !important;
