@@ -63,7 +63,7 @@ class Application {
         
         let songBlob = null;
         while (!songBlob) {
-            await SMUIPrompts.alert(`Please select an audio file (.mp3, .ogg, .wav) to start with.`
+            await SMUIPrompts.alert(`You will be prompted to select an audio file (ex: .mp3, .ogg, .wav) to start with.`
                 + `\n`
                 + `\n` + `Please make sure the audio file is the same one you will use in your mod, and that it is compatible with Unity 2021.`);
             try {
@@ -72,7 +72,7 @@ class Application {
             } catch (err) {
                 console.error(err);
                 await SMUIPrompts.alert(`An error occurred.`
-                    + `\n` + ` - Did you select an audio file? (.mp3, .ogg, .wav)`
+                    + `\n` + ` - Did you select an audio file? (ex: .mp3, .ogg, .wav)`
                     + `\n` + ` - Are you on a desktop device? (Mobile browsers may not work.)`
                     + `\n` + ` - Are you on an up-to-date browser? (Firefox has not been tested.)`
                     + `\n`
